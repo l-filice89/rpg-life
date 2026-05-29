@@ -23,7 +23,7 @@ jobs:
 
       - name: Check for release label
         id: label
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             // Find the merged PR for this commit
