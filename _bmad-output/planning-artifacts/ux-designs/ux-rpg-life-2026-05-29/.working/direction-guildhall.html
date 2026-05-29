@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guild Hall — Quest Board Direction</title>
+  <!--
+    Guild Hall evokes a warm tavern notice board through color alone: stone walls,
+    oak trim, and badge-dense rows pack information tight like a busy RPG hub screen
+    without literal texture assets — cozy, communal, and unmistakably fantasy.
+  -->
+  <style>
+    /* Palette: stone #3D3832, oak #6B4F2A, parchment #E8DFD0, warm cream #F2EBE0, amber XP #C4842A, Focus #7A9E6E, badge rust #A65D3F, text #2A2520 */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2A2520;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      padding: 24px;
+    }
+    .phone {
+      width: 390px;
+      min-height: 780px;
+      background: #F2EBE0;
+      border-radius: 28px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      padding: 12px 14px 14px;
+      background: #3D3832;
+      border-bottom: 4px solid #6B4F2A;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .hamburger {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #6B4F2A;
+      border-radius: 6px;
+      background: #2A2520;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      background: #E8DFD0;
+      border-radius: 1px;
+    }
+    .header-title {
+      flex: 1;
+      font-size: 17px;
+      font-weight: 700;
+      color: #E8DFD0;
+      letter-spacing: 0.02em;
+    }
+    .hero-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #2A2520;
+      border: 2px solid #6B4F2A;
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .hero-badge {
+      font-size: 11px;
+      font-weight: 800;
+      color: #F2EBE0;
+      background: #6B4F2A;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .xp-wrap { flex: 1; }
+    .xp-track {
+      height: 8px;
+      background: #3D3832;
+      border-radius: 4px;
+      border: 1px solid #6B4F2A;
+      overflow: hidden;
+    }
+    .xp-fill {
+      width: 62%;
+      height: 100%;
+      background: linear-gradient(90deg, #A06520, #C4842A);
+      border-radius: 3px;
+    }
+    .focus-pill {
+      font-size: 11px;
+      font-weight: 800;
+      color: #F2EBE0;
+      background: #7A9E6E;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #5A7A50;
+      white-space: nowrap;
+    }
+    .content {
+      flex: 1;
+      padding: 10px 12px 88px;
+      overflow-y: auto;
+    }
+    .section-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 6px;
+      padding: 6px 8px;
+      background: #E8DFD0;
+      border-radius: 6px;
+      border-left: 4px solid #A65D3F;
+    }
+    .section-bar.open {
+      border-left-color: #6B4F2A;
+    }
+    .section-title {
+      flex: 1;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #2A2520;
+    }
+    .section-badge {
+      font-size: 10px;
+      font-weight: 800;
+      color: #F2EBE0;
+      background: #A65D3F;
+      padding: 2px 7px;
+      border-radius: 10px;
+      min-width: 20px;
+      text-align: center;
+    }
+    .section-bar.open .section-badge {
+      background: #6B4F2A;
+    }
+    .quest-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 6px;
+      border-bottom: 1px solid #D8CEC0;
+    }
+    .quest-row:last-child { border-bottom: none; }
+    .checkbox {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #6B4F2A;
+      border-radius: 4px;
+      flex-shrink: 0;
+      background: #F2EBE0;
+    }
+    .quest-body { flex: 1; min-width: 0; }
+    .quest-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2A2520;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+    .quest-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+    .badge-neutral {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #5A5048;
+      background: #D8CEC0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid #C0B4A4;
+    }
+    .badge-diff {
+      font-size: 9px;
+      font-weight: 800;
+      color: #F2EBE0;
+      background: #3D3832;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .skill-chip {
+      font-size: 9px;
+      font-weight: 700;
+      color: #6B4F2A;
+      background: #E8DFD0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid #C0B4A4;
+    }
+    .due {
+      font-size: 9px;
+      font-weight: 700;
+      color: #6B4F2A;
+    }
+    .fab {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      background: #6B4F2A;
+      color: #F2EBE0;
+      border: 3px solid #C4842A;
+      font-size: 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(42, 37, 32, 0.4);
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <header class="header">
+      <div class="header-top">
+        <button class="hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+        <h1 class="header-title">Quest Board</h1>
+      </div>
+      <div class="hero-strip">
+        <span class="hero-badge">HERO Lv4</span>
+        <div class="xp-wrap">
+          <div class="xp-track"><div class="xp-fill"></div></div>
+        </div>
+        <span class="focus-pill">⚡ 2/5</span>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="section-bar">
+        <span class="section-title">Replan when ready</span>
+        <span class="section-badge">1</span>
+      </div>
+
+      <article class="quest-row">
+        <div class="checkbox"></div>
+        <div class="quest-body">
+          <h2 class="quest-title">Reply to landlord</h2>
+          <div class="quest-meta">
+            <span class="badge-neutral">May 27</span>
+            <span class="badge-diff">MED</span>
+            <span class="skill-chip">Presence</span>
+            <span class="skill-chip">Order</span>
+          </div>
+        </div>
+      </article>
+
+      <div class="section-bar open">
+        <span class="section-title">Open quests</span>
+        <span class="section-badge">2</span>
+      </div>
+
+      <article class="quest-row">
+        <div class="checkbox"></div>
+        <div class="quest-body">
+          <h2 class="quest-title">Finish portfolio draft</h2>
+          <div class="quest-meta">
+            <span class="due">May 30</span>
+            <span class="badge-diff">HARD</span>
+            <span class="skill-chip">Craft</span>
+            <span class="skill-chip">Lore</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="quest-row">
+        <div class="checkbox"></div>
+        <div class="quest-body">
+          <h2 class="quest-title">Morning run — 20 min</h2>
+          <div class="quest-meta">
+            <span class="badge-diff">EASY</span>
+            <span class="skill-chip">Vitality</span>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <button class="fab" aria-label="Create quest">+</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicle — Quest Board Direction</title>
+  <!--
+    Chronicle treats the Quest Board as a personal ledger: serif chapter titles,
+    ruled journal rows, and ornamental dividers keep RPG chrome subtle so progress
+    feels written into your story rather than shouted from a HUD.
+  -->
+  <style>
+    /* Palette: parchment #F7F3EB, ink #2C2419, sepia accent #8B6914, muted sage #6B7F6A, overdue neutral #9A8B7A, XP fill #5C7A5A */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #D8D0C4;
+      font-family: Georgia, "Times New Roman", serif;
+      padding: 24px;
+    }
+    .phone {
+      width: 390px;
+      min-height: 780px;
+      background: #F7F3EB;
+      border-radius: 28px;
+      box-shadow: 0 24px 48px rgba(44, 36, 25, 0.18), inset 0 0 0 1px rgba(44, 36, 25, 0.08);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #E0D8CC;
+      background: linear-gradient(180deg, #FAF7F0 0%, #F7F3EB 100%);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .hamburger {
+      width: 36px;
+      height: 36px;
+      border: 1px solid #D4CAB8;
+      border-radius: 8px;
+      background: #FAF7F0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .hamburger span {
+      display: block;
+      width: 16px;
+      height: 1.5px;
+      background: #2C2419;
+    }
+    .header-title {
+      flex: 1;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: #2C2419;
+      font-style: italic;
+    }
+    .hero-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8B6914;
+      white-space: nowrap;
+      font-family: system-ui, sans-serif;
+    }
+    .xp-track {
+      flex: 1;
+      height: 6px;
+      background: #E8E0D4;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .xp-fill {
+      width: 62%;
+      height: 100%;
+      background: #5C7A5A;
+      border-radius: 3px;
+    }
+    .focus-pill {
+      font-family: system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8B6914;
+      background: #F0E8D8;
+      border: 1px solid #D4C4A8;
+      padding: 5px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .content {
+      flex: 1;
+      padding: 0 20px 88px;
+      overflow-y: auto;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 22px 0 14px;
+      color: #9A8B7A;
+      font-family: system-ui, sans-serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #C8BAA8, transparent);
+    }
+    .divider-ornament {
+      font-size: 14px;
+      color: #8B6914;
+      letter-spacing: 0;
+    }
+    .overdue-note {
+      font-size: 12px;
+      color: #9A8B7A;
+      font-style: italic;
+      margin-bottom: 10px;
+      line-height: 1.45;
+    }
+    .quest-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid #E8E0D4;
+    }
+    .quest-row:last-child { border-bottom: none; }
+    .checkbox {
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid #B8AA96;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      background: #FAF7F0;
+    }
+    .quest-body { flex: 1; min-width: 0; }
+    .quest-title {
+      font-size: 16px;
+      color: #2C2419;
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+    .quest-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+    }
+    .badge-neutral {
+      color: #7A6E62;
+      background: #EDE6DA;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid #D8CEC0;
+    }
+    .skill-chip {
+      font-family: system-ui, sans-serif;
+      font-size: 10px;
+      color: #5C5248;
+      background: transparent;
+      border: 1px solid #C8BAA8;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+    .due {
+      color: #9A8B7A;
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+    }
+    .fab {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #2C2419;
+      color: #F7F3EB;
+      border: 2px solid #8B6914;
+      font-size: 28px;
+      font-weight: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(44, 36, 25, 0.25);
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <header class="header">
+      <div class="header-top">
+        <button class="hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+        <h1 class="header-title">Quest Board</h1>
+      </div>
+      <div class="hero-row">
+        <span class="hero-label">Hero · Lv 4</span>
+        <div class="xp-track"><div class="xp-fill"></div></div>
+        <span class="focus-pill">⚡ 2/5</span>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="divider"><span class="divider-ornament">✦</span> Replan when ready <span class="divider-ornament">✦</span></div>
+      <p class="overdue-note">Past due date — reschedule anytime with Focus. No penalty.</p>
+
+      <article class="quest-row">
+        <div class="checkbox"></div>
+        <div class="quest-body">
+          <h2 class="quest-title">Reply to landlord</h2>
+          <div class="quest-meta">
+            <span class="badge-neutral">May 27</span>
+            <span class="skill-chip">Presence</span>
+            <span class="skill-chip">Order</span>
+          </div>
+        </div>
+      </article>
+
+      <div class="divider"><span class="divider-ornament">—</span> Open quests <span class="divider-ornament">—</span></div>
+
+      <article class="quest-row">
+        <div class="checkbox"></div>
+        <div class="quest-body">
+          <h2 class="quest-title">Finish portfolio draft</h2>
+          <div class="quest-meta">
+            <span class="due">Due May 30</span>
+            <span class="skill-chip">Craft</span>
+            <span class="skill-chip">Lore</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="quest-row">
+        <div class="checkbox"></div>
+        <div class="quest-body">
+          <h2 class="quest-title">Morning run — 20 min</h2>
+          <div class="quest-meta">
+            <span class="skill-chip">Vitality</span>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <button class="fab" aria-label="Create quest">+</button>
+  </div>
+</body>
+</html>

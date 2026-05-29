@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quest Board — rpg-life (Crystal Path + Star Path)</title>
+  <!--
+    Final Crystal Path tokens + Star Path composition. Light and dark side-by-side.
+    Light: bg #F6FAFB, fg #1A2830, primary #0B7A70, accent #7C3AED, muted #64748B, border #D1E3E8, card #FFFFFF
+    Dark:  bg #0F1720, fg #E2F0F5, primary #2DD4BF, accent #A78BFA, muted #7A8F9A, border #1E3440, card #162028
+  -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 32px;
+      padding: 32px;
+      background: #050608;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .wrap { display: flex; flex-direction: column; align-items: center; }
+    .mode-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #888; margin-bottom: 12px;
+    }
+    .phone {
+      width: 390px; min-height: 780px; border-radius: 28px;
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+    .phone.light {
+      background: #F6FAFB; color: #1A2830;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    .phone.dark {
+      background: #0F1720; color: #E2F0F5;
+      box-shadow: 0 20px 50px rgba(123,140,255,0.1);
+    }
+    .header { padding: 20px 22px 22px; }
+    .phone.light .header {
+      background: linear-gradient(180deg, #fff 0%, #F6FAFB 100%);
+      border-bottom: 1px solid #D1E3E8;
+    }
+    .phone.dark .header {
+      background: linear-gradient(180deg, #162028 0%, #0F1720 100%);
+      border-bottom: 1px solid #1E3440;
+    }
+    .header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .hamburger {
+      width: 38px; height: 38px; border-radius: 12px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+      border: none; cursor: pointer;
+    }
+    .phone.light .hamburger { border: 1px solid #D1E3E8; background: #fff; }
+    .phone.dark .hamburger { border: 1px solid #1E3440; background: #162028; }
+    .hamburger span { display: block; width: 16px; height: 1.5px; border-radius: 1px; }
+    .phone.light .hamburger span { background: #64748B; }
+    .phone.dark .hamburger span { background: #7A8F9A; }
+    .header-title { flex: 1; font-size: 18px; font-weight: 500; letter-spacing: 0.01em; }
+    .hero-zone { display: flex; flex-direction: column; gap: 12px; }
+    .hero-top { display: flex; align-items: center; justify-content: space-between; }
+    .hero-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .phone.light .hero-label { color: #0B7A70; }
+    .phone.dark .hero-label { color: #2DD4BF; }
+    .focus-pill {
+      font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 9999px;
+    }
+    .phone.light .focus-pill { color: #0B7A70; background: #E6F7F5; border: 1px solid #D1E3E8; }
+    .phone.dark .focus-pill { color: #2DD4BF; background: #152830; border: 1px solid #1E3440; }
+    .xp-track { height: 8px; border-radius: 9999px; overflow: hidden; }
+    .phone.light .xp-track { background: #D1E3E8; }
+    .phone.dark .xp-track { background: #1E3440; }
+    .xp-fill {
+      width: 62%; height: 100%; border-radius: 9999px;
+      box-shadow: 0 0 12px rgba(124, 58, 237, 0.35);
+    }
+    .phone.light .xp-fill { background: linear-gradient(90deg, #0B7A70, #7C3AED); }
+    .phone.dark .xp-fill { background: linear-gradient(90deg, #2DD4BF, #A78BFA); }
+    .content { flex: 1; padding: 8px 22px 100px; overflow-y: auto; }
+    .section-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; margin: 24px 0 12px;
+    }
+    .phone.light .section-label { color: #64748B; }
+    .phone.dark .section-label { color: #7A8F9A; }
+    .section-label:first-child { margin-top: 8px; }
+    .overdue-hint { font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+    .phone.light .overdue-hint { color: #64748B; }
+    .phone.dark .overdue-hint { color: #7A8F9A; }
+    .quest-row {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px; margin-bottom: 12px; border-radius: 12px;
+    }
+    .phone.light .quest-row { background: #fff; border: 1px solid #D1E3E8; }
+    .phone.dark .quest-row { background: #162028; border: 1px solid #1E3440; }
+    .phone.light .quest-row.overdue { border-color: #94A8B0; }
+    .phone.dark .quest-row.overdue { border-color: #4A6270; }
+    .checkbox {
+      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+    }
+    .phone.light .checkbox { border: 1.5px solid #D1E3E8; }
+    .phone.dark .checkbox { border: 1.5px solid #1E3440; }
+    .quest-body { flex: 1; min-width: 0; }
+    .quest-title { font-size: 16px; font-weight: 500; line-height: 1.4; margin-bottom: 10px; }
+    .quest-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .badge-neutral, .skill-chip {
+      font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 8px;
+    }
+    .phone.light .badge-neutral,
+    .phone.light .skill-chip { color: #64748B; background: #F0F4F6; }
+    .phone.dark .badge-neutral,
+    .phone.dark .skill-chip { color: #7A8F9A; background: #1C2830; }
+    .due { font-size: 11px; }
+    .phone.light .due { color: #64748B; }
+    .phone.dark .due { color: #7A8F9A; }
+    .fab {
+      position: absolute; bottom: 24px; right: 24px;
+      width: 56px; height: 56px; border-radius: 50%; border: none;
+      font-size: 28px; font-weight: 300; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone.light .fab {
+      background: #0B7A70; color: #fff;
+      box-shadow: 0 4px 20px rgba(13, 122, 112, 0.35);
+    }
+    .phone.dark .fab {
+      background: #2DD4BF; color: #0F1720;
+      box-shadow: 0 4px 20px rgba(45, 212, 191, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- Light -->
+  <div class="wrap">
+    <div class="mode-label">Light — Quest Board</div>
+    <div class="phone light">
+      <header class="header">
+        <div class="header-top">
+          <button class="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+          <h1 class="header-title">Quest Board</h1>
+        </div>
+        <div class="hero-zone">
+          <div class="hero-top">
+            <span class="hero-label">Hero Lv 4</span>
+            <span class="focus-pill">⚡ 2/5</span>
+          </div>
+          <div class="xp-track"><div class="xp-fill"></div></div>
+        </div>
+      </header>
+      <main class="content">
+        <p class="section-label">Replan when ready</p>
+        <p class="overdue-hint">Past due — pick a new date anytime. No penalty.</p>
+        <article class="quest-row overdue">
+          <div class="checkbox"></div>
+          <div class="quest-body">
+            <h2 class="quest-title">Reply to landlord</h2>
+            <div class="quest-meta">
+              <span class="badge-neutral">May 27</span>
+              <span class="skill-chip">Presence</span>
+              <span class="skill-chip">Order</span>
+            </div>
+          </div>
+        </article>
+        <p class="section-label">Open quests</p>
+        <article class="quest-row">
+          <div class="checkbox"></div>
+          <div class="quest-body">
+            <h2 class="quest-title">Finish portfolio draft</h2>
+            <div class="quest-meta">
+              <span class="due">Due May 30</span>
+              <span class="skill-chip">Craft</span>
+              <span class="skill-chip">Lore</span>
+            </div>
+          </div>
+        </article>
+        <article class="quest-row">
+          <div class="checkbox"></div>
+          <div class="quest-body">
+            <h2 class="quest-title">Morning run — 20 min</h2>
+            <div class="quest-meta"><span class="skill-chip">Vitality</span></div>
+          </div>
+        </article>
+      </main>
+      <button class="fab" aria-label="Create quest">+</button>
+    </div>
+  </div>
+
+  <!-- Dark -->
+  <div class="wrap">
+    <div class="mode-label">Dark — Quest Board</div>
+    <div class="phone dark">
+      <header class="header">
+        <div class="header-top">
+          <button class="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+          <h1 class="header-title">Quest Board</h1>
+        </div>
+        <div class="hero-zone">
+          <div class="hero-top">
+            <span class="hero-label">Hero Lv 4</span>
+            <span class="focus-pill">⚡ 2/5</span>
+          </div>
+          <div class="xp-track"><div class="xp-fill"></div></div>
+        </div>
+      </header>
+      <main class="content">
+        <p class="section-label">Replan when ready</p>
+        <p class="overdue-hint">Past due — pick a new date anytime. No penalty.</p>
+        <article class="quest-row overdue">
+          <div class="checkbox"></div>
+          <div class="quest-body">
+            <h2 class="quest-title">Reply to landlord</h2>
+            <div class="quest-meta">
+              <span class="badge-neutral">May 27</span>
+              <span class="skill-chip">Presence</span>
+              <span class="skill-chip">Order</span>
+            </div>
+          </div>
+        </article>
+        <p class="section-label">Open quests</p>
+        <article class="quest-row">
+          <div class="checkbox"></div>
+          <div class="quest-body">
+            <h2 class="quest-title">Finish portfolio draft</h2>
+            <div class="quest-meta">
+              <span class="due">Due May 30</span>
+              <span class="skill-chip">Craft</span>
+              <span class="skill-chip">Lore</span>
+            </div>
+          </div>
+        </article>
+        <article class="quest-row">
+          <div class="checkbox"></div>
+          <div class="quest-body">
+            <h2 class="quest-title">Morning run — 20 min</h2>
+            <div class="quest-meta"><span class="skill-chip">Vitality</span></div>
+          </div>
+        </article>
+      </main>
+      <button class="fab" aria-label="Create quest">+</button>
+    </div>
+  </div>
+</body>
+</html>

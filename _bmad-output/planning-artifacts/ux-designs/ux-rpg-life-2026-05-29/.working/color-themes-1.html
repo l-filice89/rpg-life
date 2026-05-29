@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rpg-life — Color Theme Variations</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #111;
+    color: #eee;
+    padding: 24px 16px 48px;
+    line-height: 1.4;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+
+  .page-sub {
+    font-size: 0.8125rem;
+    color: #999;
+    margin-bottom: 28px;
+  }
+
+  .themes-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(280px, 1fr));
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .theme-col {
+    min-width: 280px;
+  }
+
+  .theme-header {
+    margin-bottom: 10px;
+  }
+
+  .theme-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .theme-register {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  .mode-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .mode-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.55;
+    margin-bottom: 4px;
+  }
+
+  .panel {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ── Token chips ── */
+  .tokens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .token {
+    font-size: 0.5625rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── UI snippet shared structure ── */
+  .snippet {
+    padding: 10px;
+    font-size: 0.6875rem;
+  }
+
+  .quest-board-title {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    opacity: 0.6;
+  }
+
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .hero-block {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hero-label {
+    font-size: 0.5625rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .xp-bar-track {
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .xp-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: 62%;
+  }
+
+  .xp-sub {
+    font-size: 0.5rem;
+    margin-top: 2px;
+    opacity: 0.55;
+  }
+
+  .focus-pill {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .focus-icon {
+    font-size: 0.6875rem;
+    line-height: 1;
+  }
+
+  .quest-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+
+  .quest-row:last-child { margin-bottom: 0; }
+
+  .quest-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .quest-title {
+    font-weight: 600;
+    font-size: 0.6875rem;
+    line-height: 1.25;
+  }
+
+  .diff-badge {
+    font-size: 0.5rem;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-transform: capitalize;
+  }
+
+  .quest-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .skill-chip {
+    font-size: 0.5rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 999px;
+  }
+
+  .due-text {
+    font-size: 0.5rem;
+    opacity: 0.6;
+    margin-left: auto;
+  }
+
+  .overdue-hint {
+    font-size: 0.5rem;
+    font-weight: 500;
+    padding-left: 6px;
+    border-left: 2px solid;
+    margin-top: 1px;
+  }
+
+  /* ═══════════════════════════════════════════
+     1. ARCANE TOME — scholarly RPG
+     bg #F4F2EE / #141824
+     fg #1E2433 / #E8E4DC
+     primary #3D4A6B / #8B9FD4
+     accent #C9A227 / #E8C547
+     muted #6B7289 / #8892A8
+     border #D8D4CC / #2A3040
+     destructive #9B4D4D / #C47070
+     skill-accent #5B7FA5 / #7BA3CC
+     ═══════════════════════════════════════════ */
+  .arcane-light {
+    --bg: #F4F2EE;
+    --fg: #1E2433;
+    --primary: #3D4A6B;
+    --accent: #C9A227;
+    --muted: #6B7289;
+    --border: #D8D4CC;
+    --destructive: #9B4D4D;
+    --skill-accent: #5B7FA5;
+    --surface: #FFFFFF;
+    --xp-track: #E2DDD4;
+    --focus-bg: #EDE9E0;
+    --focus-fg: #3D4A6B;
+    --row-bg: #FFFFFF;
+    --overdue-border: #A89878;
+    --overdue-fg: #6B7289;
+  }
+
+  .arcane-dark {
+    --bg: #141824;
+    --fg: #E8E4DC;
+    --primary: #8B9FD4;
+    --accent: #E8C547;
+    --muted: #8892A8;
+    --border: #2A3040;
+    --destructive: #C47070;
+    --skill-accent: #7BA3CC;
+    --surface: #1C2230;
+    --xp-track: #2A3040;
+    --focus-bg: #252D3D;
+    --focus-fg: #E8C547;
+    --row-bg: #1C2230;
+    --overdue-border: #6B6355;
+    --overdue-fg: #8892A8;
+  }
+
+  /* ═══════════════════════════════════════════
+     2. DAWN QUEST — adventure journal
+     bg #FAF6EE / #2A2318
+     fg #3D2E1F / #EDE5D8
+     primary #8B6914 / #D4A853
+     accent #D4956A / #E8B88A
+     muted #8A7968 / #9A8B78
+     border #E8DFD0 / #443A2E
+     destructive #A65D4A / #C48878
+     skill-accent #6B8F71 / #8FBA96
+     ═══════════════════════════════════════════ */
+  .dawn-light {
+    --bg: #FAF6EE;
+    --fg: #3D2E1F;
+    --primary: #8B6914;
+    --accent: #D4956A;
+    --muted: #8A7968;
+    --border: #E8DFD0;
+    --destructive: #A65D4A;
+    --skill-accent: #6B8F71;
+    --surface: #FFFCF5;
+    --xp-track: #EDE4D4;
+    --focus-bg: #F0E6D4;
+    --focus-fg: #8B6914;
+    --row-bg: #FFFCF5;
+    --overdue-border: #C4A882;
+    --overdue-fg: #8A7968;
+  }
+
+  .dawn-dark {
+    --bg: #2A2318;
+    --fg: #EDE5D8;
+    --primary: #D4A853;
+    --accent: #E8B88A;
+    --muted: #9A8B78;
+    --border: #443A2E;
+    --destructive: #C48878;
+    --skill-accent: #8FBA96;
+    --surface: #352C1E;
+    --xp-track: #443A2E;
+    --focus-bg: #3D3324;
+    --focus-fg: #E8B88A;
+    --row-bg: #352C1E;
+    --overdue-border: #7A6B55;
+    --overdue-fg: #9A8B78;
+  }
+
+  /* ═══════════════════════════════════════════
+     3. CRYSTAL PATH — modern fantasy
+     bg #F6FAFB / #0F1720
+     fg #1A2830 / #E2F0F5
+     primary #0D9488 / #2DD4BF
+     accent #7C3AED / #A78BFA
+     muted #64748B / #7A8F9A
+     border #D1E3E8 / #1E3440
+     destructive #BE4B4B / #E57373
+     skill-accent #14B8A6 / #5EEAD4
+     ═══════════════════════════════════════════ */
+  .crystal-light {
+    --bg: #F6FAFB;
+    --fg: #1A2830;
+    --primary: #0D9488;
+    --accent: #7C3AED;
+    --muted: #64748B;
+    --border: #D1E3E8;
+    --destructive: #BE4B4B;
+    --skill-accent: #14B8A6;
+    --surface: #FFFFFF;
+    --xp-track: #D1E3E8;
+    --focus-bg: #E6F7F5;
+    --focus-fg: #0D9488;
+    --row-bg: #FFFFFF;
+    --overdue-border: #94A8B0;
+    --overdue-fg: #64748B;
+  }
+
+  .crystal-dark {
+    --bg: #0F1720;
+    --fg: #E2F0F5;
+    --primary: #2DD4BF;
+    --accent: #A78BFA;
+    --muted: #7A8F9A;
+    --border: #1E3440;
+    --destructive: #E57373;
+    --skill-accent: #5EEAD4;
+    --surface: #162028;
+    --xp-track: #1E3440;
+    --focus-bg: #152830;
+    --focus-fg: #2DD4BF;
+    --row-bg: #162028;
+    --overdue-border: #4A6270;
+    --overdue-fg: #7A8F9A;
+  }
+
+  /* ═══════════════════════════════════════════
+     4. EMBER OATH — bold heroic
+     bg #FDF8F4 / #1A0F0A
+     fg #2C1810 / #F5E6DC
+     primary #B45309 / #F59E0B
+     accent #9F1239 / #E11D48
+     muted #78716C / #9A8478
+     border #E8D5C4 / #3D2818
+     destructive #B91C1C / #F87171
+     skill-accent #D97706 / #FB923C
+     ═══════════════════════════════════════════ */
+  .ember-light {
+    --bg: #FDF8F4;
+    --fg: #2C1810;
+    --primary: #B45309;
+    --accent: #9F1239;
+    --muted: #78716C;
+    --border: #E8D5C4;
+    --destructive: #B91C1C;
+    --skill-accent: #D97706;
+    --surface: #FFFFFF;
+    --xp-track: #F0E0D0;
+    --focus-bg: #FEF0E0;
+    --focus-fg: #B45309;
+    --row-bg: #FFFFFF;
+    --overdue-border: #C4A088;
+    --overdue-fg: #78716C;
+  }
+
+  .ember-dark {
+    --bg: #1A0F0A;
+    --fg: #F5E6DC;
+    --primary: #F59E0B;
+    --accent: #E11D48;
+    --muted: #9A8478;
+    --border: #3D2818;
+    --destructive: #F87171;
+    --skill-accent: #FB923C;
+    --surface: #261610;
+    --xp-track: #3D2818;
+    --focus-bg: #302018;
+    --focus-fg: #F59E0B;
+    --row-bg: #261610;
+    --overdue-border: #6B5040;
+    --overdue-fg: #9A8478;
+  }
+
+  /* ═══════════════════════════════════════════
+     5. MISTWOOD — calm ranger
+     bg #F5F7F3 / #141A16
+     fg #1F2E24 / #DDE8DC
+     primary #4A6741 / #8FBA96
+     accent #6B8F71 / #A8C4AA
+     muted #6B7D6E / #7A8F7E
+     border #D5DDD0 / #28332A
+     destructive #A05252 / #C48888
+     skill-accent #7BA383 / #9DCAA5
+     ═══════════════════════════════════════════ */
+  .mistwood-light {
+    --bg: #F5F7F3;
+    --fg: #1F2E24;
+    --primary: #4A6741;
+    --accent: #6B8F71;
+    --muted: #6B7D6E;
+    --border: #D5DDD0;
+    --destructive: #A05252;
+    --skill-accent: #7BA383;
+    --surface: #FFFFFF;
+    --xp-track: #DDE8D8;
+    --focus-bg: #E8F0E4;
+    --focus-fg: #4A6741;
+    --row-bg: #FFFFFF;
+    --overdue-border: #98A898;
+    --overdue-fg: #6B7D6E;
+  }
+
+  .mistwood-dark {
+    --bg: #141A16;
+    --fg: #DDE8DC;
+    --primary: #8FBA96;
+    --accent: #A8C4AA;
+    --muted: #7A8F7E;
+    --border: #28332A;
+    --destructive: #C48888;
+    --skill-accent: #9DCAA5;
+    --surface: #1C2420;
+    --xp-track: #28332A;
+    --focus-bg: #222C26;
+    --focus-fg: #8FBA96;
+    --row-bg: #1C2420;
+    --overdue-border: #556858;
+    --overdue-fg: #7A8F7E;
+  }
+
+  /* ── Apply theme vars to panel ── */
+  .themed {
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  .themed .token-bg { background: var(--bg); color: var(--fg); border: 1px solid var(--border); }
+  .themed .token-fg { background: var(--fg); color: var(--bg); }
+  .themed .token-primary { background: var(--primary); color: #fff; }
+  .themed .token-accent { background: var(--accent); color: #fff; }
+  .themed .token-muted { background: var(--muted); color: #fff; }
+  .themed .token-border { background: var(--border); color: var(--fg); }
+  .themed .token-destructive { background: var(--destructive); color: #fff; }
+  .themed .token-skill { background: var(--skill-accent); color: #fff; }
+
+  .themed .arcane-dark .token-primary,
+  .themed .arcane-dark .token-accent { color: #141824; }
+  .themed .dawn-dark .token-primary { color: #2A2318; }
+  .themed .crystal-dark .token-primary { color: #0F1720; }
+  .themed .ember-dark .token-primary { color: #1A0F0A; }
+  .themed .mistwood-dark .token-primary { color: #141A16; }
+
+  .themed .snippet { border-top: 1px solid var(--border); }
+
+  .themed .hero-label { color: var(--primary); }
+  .themed .xp-bar-track { background: var(--xp-track); }
+  .themed .xp-bar-fill { background: var(--accent); }
+  .themed .xp-sub { color: var(--muted); }
+
+  .themed .focus-pill {
+    background: var(--focus-bg);
+    color: var(--focus-fg);
+    border: 1px solid var(--border);
+  }
+
+  .themed .quest-row {
+    background: var(--row-bg);
+    border: 1px solid var(--border);
+  }
+
+  .themed .quest-row.overdue {
+    border-style: dashed;
+    opacity: 0.92;
+  }
+
+  .themed .diff-badge {
+    background: color-mix(in srgb, var(--primary) 15%, var(--bg));
+    color: var(--primary);
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border));
+  }
+
+  .themed .skill-chip {
+    background: color-mix(in srgb, var(--skill-accent) 18%, var(--bg));
+    color: var(--skill-accent);
+    border: 1px solid color-mix(in srgb, var(--skill-accent) 35%, var(--border));
+  }
+
+  .themed .due-text { color: var(--muted); }
+
+  .themed .overdue-hint {
+    color: var(--overdue-fg);
+    border-color: var(--overdue-border);
+  }
+
+  .themed .quest-board-title { color: var(--muted); }
+
+  /* Light-mode token contrast fixes */
+  .arcane-light .token-accent,
+  .dawn-light .token-primary,
+  .ember-light .token-accent { color: #fff; }
+  .arcane-light .token-accent { color: #1E2433; }
+  .dawn-light .token-accent,
+  .crystal-light .token-accent,
+  .mistwood-light .token-accent,
+  .mistwood-light .token-primary { color: #fff; }
+  .crystal-light .token-primary { color: #fff; }
+  .ember-light .token-primary { color: #fff; }
+</style>
+</head>
+<body>
+
+<h1>rpg-life — Color Theme Variations</h1>
+<p class="page-sub">Shell B · Reward B+C · RPG-first tone · system dark mode · 5 register-distinct palettes</p>
+
+<div class="themes-grid">
+
+  <!-- 1. ARCANE TOME -->
+  <div class="theme-col">
+    <div class="theme-header">
+      <div class="theme-name">Arcane Tome</div>
+      <div class="theme-register">Scholarly RPG — deep slate ink and gold XP</div>
+    </div>
+    <div class="mode-pair">
+      <div>
+        <div class="mode-label">Light</div>
+        <div class="panel themed arcane-light">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="mode-label">Dark</div>
+        <div class="panel themed arcane-dark">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. DAWN QUEST -->
+  <div class="theme-col">
+    <div class="theme-header">
+      <div class="theme-name">Dawn Quest</div>
+      <div class="theme-register">Adventure journal — warm parchment and cozy firelight</div>
+    </div>
+    <div class="mode-pair">
+      <div>
+        <div class="mode-label">Light</div>
+        <div class="panel themed dawn-light">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="mode-label">Dark</div>
+        <div class="panel themed dawn-dark">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CRYSTAL PATH -->
+  <div class="theme-col">
+    <div class="theme-header">
+      <div class="theme-name">Crystal Path</div>
+      <div class="theme-register">Modern fantasy — cool teal-violet clarity</div>
+    </div>
+    <div class="mode-pair">
+      <div>
+        <div class="mode-label">Light</div>
+        <div class="panel themed crystal-light">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="mode-label">Dark</div>
+        <div class="panel themed crystal-dark">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. EMBER OATH -->
+  <div class="theme-col">
+    <div class="theme-header">
+      <div class="theme-name">Ember Oath</div>
+      <div class="theme-register">Bold heroic — amber fire and crimson vow</div>
+    </div>
+    <div class="mode-pair">
+      <div>
+        <div class="mode-label">Light</div>
+        <div class="panel themed ember-light">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="mode-label">Dark</div>
+        <div class="panel themed ember-dark">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MISTWOOD -->
+  <div class="theme-col">
+    <div class="theme-header">
+      <div class="theme-name">Mistwood</div>
+      <div class="theme-register">Calm ranger — muted sage-forest stillness</div>
+    </div>
+    <div class="mode-pair">
+      <div>
+        <div class="mode-label">Light</div>
+        <div class="panel themed mistwood-light">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="mode-label">Dark</div>
+        <div class="panel themed mistwood-dark">
+          <div class="tokens">
+            <span class="token token-bg">bg</span>
+            <span class="token token-fg">fg</span>
+            <span class="token token-primary">primary</span>
+            <span class="token token-accent">accent</span>
+            <span class="token token-muted">muted</span>
+            <span class="token token-border">border</span>
+            <span class="token token-destructive">destructive</span>
+            <span class="token token-skill">skill</span>
+          </div>
+          <div class="snippet">
+            <div class="quest-board-title">Quest Board</div>
+            <div class="app-header">
+              <div class="hero-block">
+                <div class="hero-label">Hero Lv 4</div>
+                <div class="xp-bar-track"><div class="xp-bar-fill"></div></div>
+                <div class="xp-sub">340 / 550 XP</div>
+              </div>
+              <div class="focus-pill"><span class="focus-icon">⚡</span> 2/5</div>
+            </div>
+            <div class="quest-row">
+              <div class="quest-top">
+                <span class="quest-title">Finish chapter draft</span>
+                <span class="diff-badge">medium</span>
+              </div>
+              <div class="quest-meta">
+                <span class="skill-chip">Concentration</span>
+                <span class="skill-chip">Lore</span>
+                <span class="due-text">Due May 30</span>
+              </div>
+            </div>
+            <div class="quest-row overdue">
+              <div class="quest-top">
+                <span class="quest-title">Review spell notes</span>
+                <span class="diff-badge">easy</span>
+              </div>
+              <div class="overdue-hint">Past due · still on the board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
