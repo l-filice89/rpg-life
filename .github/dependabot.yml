@@ -1,0 +1,98 @@
+version: 2
+updates:
+  # Root and all workspaces — npm ecosystem
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'corbanb'
+    groups:
+      trpc:
+        patterns:
+          - '@trpc/*'
+          - 'trpc*'
+      drizzle:
+        patterns:
+          - 'drizzle-*'
+          - '@neondatabase/*'
+      ai-sdk:
+        patterns:
+          - '@ai-sdk/*'
+          - 'ai'
+      types:
+        patterns:
+          - '@types/*'
+          - 'bun-types'
+      linting:
+        patterns:
+          - 'eslint*'
+          - '@eslint/*'
+          - 'prettier*'
+      testing:
+        patterns:
+          - '@testing-library/*'
+          - 'playwright*'
+      auth:
+        patterns:
+          - 'better-auth*'
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react*'
+          - 'next'
+      expo:
+        patterns:
+          - 'expo*'
+          - 'react-native*'
+
+    ignore:
+      # Next.js pinned to ~15.x per CLAUDE.md
+      - dependency-name: 'next'
+        update-types: ['version-update:semver-major']
+      # TypeScript pinned to ~5.6 per CLAUDE.md
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      # ESLint v8 — v9+ requires flat config migration
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      # Expo pinned to ~52.x per CLAUDE.md
+      - dependency-name: 'expo'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'expo-*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-native'
+        update-types: ['version-update:semver-minor']
+      # Zod pinned to ~3.x per CLAUDE.md
+      - dependency-name: 'zod'
+        update-types: ['version-update:semver-major']
+      # Electron pinned to ~33.x per CLAUDE.md
+      - dependency-name: 'electron'
+        update-types: ['version-update:semver-major']
+      # electron-builder major bumps require migration
+      - dependency-name: 'electron-builder'
+        update-types: ['version-update:semver-major']
+      # @hookform/resolvers major bumps require API changes
+      - dependency-name: '@hookform/resolvers'
+        update-types: ['version-update:semver-major']
+      # eslint-plugin-boundaries major bumps require config migration
+      - dependency-name: 'eslint-plugin-boundaries'
+        update-types: ['version-update:semver-major']
+      # Vite major bumps require config migration
+      - dependency-name: 'vite'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'electron-vite'
+        update-types: ['version-update:semver-major']
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'corbanb'

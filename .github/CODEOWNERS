@@ -1,0 +1,28 @@
+# x4-mono Code Owners
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @corbanb
+
+# Packages
+packages/shared/        @corbanb
+packages/database/      @corbanb
+packages/auth/          @corbanb
+packages/ai-integrations/ @corbanb
+
+# Apps
+apps/api/               @corbanb
+apps/web/               @corbanb
+apps/mobile-main/       @corbanb
+apps/desktop/           @corbanb
+apps/marketing/         @corbanb
+
+# Infrastructure & Config
+.github/                @corbanb
+turbo.json              @corbanb
+tsconfig.base.json      @corbanb
+.eslintrc.json          @corbanb
+
+# Documentation & AI Config
+CLAUDE.md               @corbanb
+wiki/                   @corbanb

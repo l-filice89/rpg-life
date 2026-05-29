@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - '3002:3002'
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: file:/data/rpg-life.db
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
+      WEB_URL: ${WEB_URL:-http://localhost:3000}
+      PORT: 3002
+    volumes:
+      - ./data:/data
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        API_URL: http://api:3002
+    ports:
+      - '3000:3000'
+    environment:
+      API_URL: http://api:3002
+      PORT_WEB: 3000
+    depends_on:
+      - api

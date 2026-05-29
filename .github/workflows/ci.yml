@@ -1,0 +1,447 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── Path Filter Detection ───────────────────────────────────────────
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      quality: ${{ steps.filter.outputs.quality }}
+      shared: ${{ steps.filter.outputs.shared }}
+      database: ${{ steps.filter.outputs.database }}
+      auth: ${{ steps.filter.outputs.auth }}
+      api: ${{ steps.filter.outputs.api }}
+      docs: ${{ steps.filter.outputs.docs }}
+      create-x4: ${{ steps.filter.outputs.create-x4 }}
+      marketing: ${{ steps.filter.outputs.marketing }}
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            quality:
+              - 'packages/**'
+              - 'apps/**'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - 'package.json'
+              - 'bun.lock'
+            shared:
+              - 'packages/shared/**'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - 'package.json'
+              - 'bun.lock'
+            database:
+              - 'packages/database/**'
+              - 'packages/shared/**'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - 'package.json'
+              - 'bun.lock'
+            auth:
+              - 'packages/auth/**'
+              - 'packages/database/**'
+              - 'packages/shared/**'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - 'package.json'
+              - 'bun.lock'
+            api:
+              - 'apps/api/**'
+              - 'packages/shared/**'
+              - 'packages/database/**'
+              - 'packages/auth/**'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - 'package.json'
+              - 'bun.lock'
+            docs:
+              - 'apps/docs/**'
+              - 'apps/api/openapi.json'
+              - 'packages/shared/**'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - 'package.json'
+              - 'bun.lock'
+            create-x4:
+              - 'create-x4/**'
+            marketing:
+              - 'apps/marketing/**'
+              - 'packages/shared/**'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+              - 'package.json'
+              - 'bun.lock'
+
+  # ─── Type Check, Lint & Audit ──────────────────────────────────────
+  quality:
+    name: Type Check & Lint
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.quality == 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.8'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun turbo type-check
+
+      - name: Lint
+        run: bun turbo lint
+
+      - name: Dependency audit
+        run: bun pm audit
+        continue-on-error: true
+
+  # ─── Neon Database Branch (PR only) ────────────────────────────────
+  neon-branch:
+    name: Create Neon Branch
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      db-url: ${{ steps.create-branch.outputs.db_url }}
+    steps:
+      - name: Check Neon secrets
+        id: check-secrets
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          if [[ -n "$NEON_API_KEY" && -n "$NEON_PROJECT_ID" ]]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+            echo "Neon secrets not configured — skipping branch creation"
+          fi
+
+      - uses: actions/checkout@v6
+        if: steps.check-secrets.outputs.available == 'true'
+
+      - name: Create Neon Branch
+        if: steps.check-secrets.outputs.available == 'true'
+        id: create-branch
+        uses: neondatabase/create-branch-action@v6
+        with:
+          project_id: ${{ secrets.NEON_PROJECT_ID }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          branch_name: pr-${{ github.event.pull_request.number }}
+          parent: main
+
+  # ─── Migration Safety Check (PR only) ─────────────────────────────
+  migration-check:
+    name: Migration Safety Check
+    runs-on: ubuntu-latest
+    needs: neon-branch
+    if: github.event_name == 'pull_request' && needs.neon-branch.outputs.db-url != ''
+    env:
+      DATABASE_URL: ${{ needs.neon-branch.outputs.db-url }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.8'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Check schema/migration sync
+        run: bunx drizzle-kit generate --check
+        working-directory: packages/database
+
+      - name: Run migrations on branch
+        run: bunx drizzle-kit migrate
+        working-directory: packages/database
+
+  # ─── Test: packages/shared ─────────────────────────────────────────
+  test-shared:
+    name: 'Test: shared'
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.shared == 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.8'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run shared tests
+        run: bun test --cwd packages/shared
+
+  # ─── Test: packages/database ───────────────────────────────────────
+  test-database:
+    name: 'Test: database'
+    runs-on: ubuntu-latest
+    needs: [changes, neon-branch]
+    if: |
+      always() &&
+      needs.changes.outputs.database == 'true'
+    env:
+      DATABASE_URL: ${{ needs.neon-branch.outputs.db-url || '' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.8'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run database tests
+        run: bun test --cwd packages/database
+
+  # ─── Test: packages/auth ───────────────────────────────────────────
+  test-auth:
+    name: 'Test: auth'
+    runs-on: ubuntu-latest
+    needs: [changes, neon-branch]
+    if: |
+      always() &&
+      needs.changes.outputs.auth == 'true'
+    env:
+      DATABASE_URL: ${{ needs.neon-branch.outputs.db-url || '' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.8'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run auth tests
+        run: bun test --cwd packages/auth
+
+  # ─── Test: apps/api ────────────────────────────────────────────────
+  test-api:
+    name: 'Test: api'
+    runs-on: ubuntu-latest
+    needs: [changes, neon-branch]
+    if: |
+      always() &&
+      needs.changes.outputs.api == 'true'
+    env:
+      DATABASE_URL: ${{ needs.neon-branch.outputs.db-url || '' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.8'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run API tests
+        run: bun test --cwd apps/api
+
+  # ─── Test: create-x4 CLI ──────────────────────────────────────────
+  test-create-x4:
+    name: 'Test: create-x4'
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.create-x4 == 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.8'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('create-x4/bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: create-x4
+
+      - name: Run create-x4 tests
+        run: bun run test
+        working-directory: create-x4
+
+      - name: Build
+        run: bun run build
+        working-directory: create-x4
+
+  # ─── Summary Gate ──────────────────────────────────────────────────
+  ci-passed:
+    name: CI Passed
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      [quality, migration-check, test-shared, test-database, test-auth, test-api, test-create-x4]
+    steps:
+      - name: Check results
+        run: |
+          if [[ "${{ needs.quality.result }}" == "failure" || \
+                "${{ needs.migration-check.result }}" == "failure" || \
+                "${{ needs.test-shared.result }}" == "failure" || \
+                "${{ needs.test-database.result }}" == "failure" || \
+                "${{ needs.test-auth.result }}" == "failure" || \
+                "${{ needs.test-api.result }}" == "failure" || \
+                "${{ needs.test-create-x4.result }}" == "failure" ]]; then
+            echo "One or more CI jobs failed"
+            exit 1
+          fi
+          echo "All CI jobs passed (or were skipped)"
+
+  # ─── Railway Preview Deploy (PR only, after CI passes) ────────────────
+  railway-preview:
+    name: Railway Preview Deploy
+    runs-on: ubuntu-latest
+    needs: [changes, ci-passed]
+    if: |
+      github.event_name == 'pull_request' &&
+      needs.changes.outputs.marketing == 'true' &&
+      needs.ci-passed.result == 'success'
+    permissions:
+      pull-requests: write
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@latest
+
+      - name: Link Railway project
+        run: railway link --project-id b3cce76b-e8e6-4323-943f-47799019db15
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Create preview environment
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          railway environment new "pr-${PR_NUMBER}" --copy production 2>/dev/null || true
+
+      - name: Deploy marketing service
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          railway up \
+            --service marketing \
+            --environment "pr-${PR_NUMBER}" \
+            --detach
+
+      - name: Get or generate preview URL
+        id: preview-url
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          URL=$(railway domain \
+            --service marketing \
+            --environment "pr-${PR_NUMBER}" \
+            --json 2>/dev/null | jq -r '.domain // empty' || true)
+          if [[ -z "$URL" ]]; then
+            URL="https://marketing-pr-${PR_NUMBER}.up.railway.app"
+          fi
+          echo "url=https://${URL#https://}" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_URL: ${{ steps.preview-url.outputs.url }}
+          HEAD_REF: ${{ github.head_ref }}
+          PROJECT_ID: b3cce76b-e8e6-4323-943f-47799019db15
+        with:
+          script: |
+            const url = process.env.PREVIEW_URL;
+            const branch = process.env.HEAD_REF;
+            const projectId = process.env.PROJECT_ID;
+            const body = [
+              '## 🚀 Preview Deployment',
+              '',
+              `**Marketing site:** ${url}`,
+              '',
+              `Deployed from \`${branch}\` · [Railway project](https://railway.com/project/${projectId})`,
+            ].join('\n');
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.data.find(c => c.body.includes('## 🚀 Preview Deployment'));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

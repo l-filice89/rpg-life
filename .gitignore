@@ -1,34 +1,63 @@
-# dependencies (bun install)
-node_modules
+# Dependencies
+node_modules/
 
-# output
-out
-dist
-*.tgz
+# Build outputs
+dist/
+storybook-static/
+create-x4/dist/
+.next/
+.expo/
+out/
 
-# code coverage
-coverage
-*.lcov
-
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-
-# caches
-.eslintcache
-.cache
+# Turbo
+.turbo/
 *.tsbuildinfo
 
-# IntelliJ based IDEs
-.idea
+# Environment
+.env
+.env.local
+.env.*.local
 
-# Finder (MacOS) folder config
+# Coverage
+coverage/
+
+# IDE
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Claude Code
+.claude-old/
+.claude/docs/
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Superpowers
+.superpowers/
+
+
+# Plans
+docs/plans/
+
+# Videos
+videos/
+
+# Debug
+*.log
+npm-debug.log*
+
+# Bun
+bun.lockb
+.vercel
+.worktrees/
+
+# SQLite data volume
+data/
+
+# opensrc - source code for packages
+opensrc/

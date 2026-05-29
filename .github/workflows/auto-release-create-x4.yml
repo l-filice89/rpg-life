@@ -1,0 +1,96 @@
+name: Auto Release create-x4
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'create-x4/src/**'
+      - 'create-x4/package.json'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Bump & Tag
+    runs-on: ubuntu-latest
+    # Skip if this push is already a release commit
+    if: "!startsWith(github.event.head_commit.message, 'chore(create-x4): release')"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for release label
+        id: label
+        uses: actions/github-script@v8
+        with:
+          script: |
+            // Find the merged PR for this commit
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+            });
+            const merged = prs.find(pr => pr.merged_at);
+            if (!merged) {
+              core.setOutput('bump', 'patch');
+              core.setOutput('skip', 'false');
+              return;
+            }
+            const labels = merged.labels.map(l => l.name);
+            if (labels.includes('no-release')) {
+              core.setOutput('skip', 'true');
+              return;
+            }
+            if (labels.includes('release:major')) {
+              core.setOutput('bump', 'major');
+            } else if (labels.includes('release:minor')) {
+              core.setOutput('bump', 'minor');
+            } else {
+              core.setOutput('bump', 'patch');
+            }
+            core.setOutput('skip', 'false');
+
+      - name: Skip if no-release label
+        if: steps.label.outputs.skip == 'true'
+        run: echo "Skipping release (no-release label)"
+
+      - name: Bump version and tag
+        if: steps.label.outputs.skip != 'true'
+        run: |
+          BUMP="${{ steps.label.outputs.bump }}"
+          PKG="create-x4/package.json"
+
+          # Read current version
+          OLD_VERSION=$(node -p "require('./$PKG').version")
+
+          # Calculate new version
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD_VERSION"
+          case "$BUMP" in
+            major) NEW_VERSION="$((MAJOR + 1)).0.0" ;;
+            minor) NEW_VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
+            patch) NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
+          esac
+
+          TAG="create-x4@${NEW_VERSION}"
+          echo "Releasing: $OLD_VERSION → $NEW_VERSION ($BUMP)"
+
+          # Update package.json
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('$PKG', 'utf-8'));
+            pkg.version = '$NEW_VERSION';
+            fs.writeFileSync('$PKG', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+          # Commit and tag
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$PKG"
+          git commit -m "chore(create-x4): release ${NEW_VERSION}"
+          git tag "$TAG"
+          git push origin main
+          git push origin "$TAG"
+
+          echo "Tagged $TAG — publish workflow will handle npm"

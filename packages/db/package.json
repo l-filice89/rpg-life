@@ -1,0 +1,28 @@
+{
+  "name": "@rpg-life/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./migrate": "./src/migrate.ts"
+  },
+  "scripts": {
+    "dev": "echo 'no dev server'",
+    "build": "echo 'no build step'",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit",
+    "test": "bun test src/",
+    "db:generate": "bun --env-file=../../.env --env-file=../../.env.local x drizzle-kit generate",
+    "db:push": "bun --env-file=../../.env --env-file=../../.env.local x drizzle-kit push",
+    "db:migrate": "bun --env-file=../../.env --env-file=../../.env.local run src/migrate-cli.ts",
+    "db:seed": "bun --env-file=../../.env --env-file=../../.env.local run src/seed.ts",
+    "db:studio": "bun --env-file=../../.env --env-file=../../.env.local x drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.9"
+  }
+}

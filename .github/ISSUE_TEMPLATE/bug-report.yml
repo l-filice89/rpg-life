@@ -1,0 +1,88 @@
+name: Bug Report
+description: Report a bug in x4-mono
+title: '[Bug]: '
+labels: ['bug', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill out the fields below so we can reproduce and fix it.
+
+  - type: dropdown
+    id: workspace
+    attributes:
+      label: Affected Workspace
+      description: Which workspace is the bug in?
+      options:
+        - 'packages/shared'
+        - 'packages/database'
+        - 'packages/auth'
+        - 'packages/ai-integrations'
+        - 'apps/api'
+        - 'apps/web'
+        - 'apps/mobile-main'
+        - 'apps/desktop'
+        - 'apps/marketing'
+        - 'Root / Monorepo tooling'
+        - 'Multiple / Unknown'
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions to reproduce the bug.
+      placeholder: |
+        1. Run `bun turbo dev`
+        2. Navigate to ...
+        3. Click on ...
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include error messages, stack traces, or screenshots.
+    validations:
+      required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Environment
+      description: Relevant version info.
+      placeholder: |
+        - OS: macOS 15.x
+        - Bun: 1.x.x
+        - Node.js: 20.x.x (if applicable)
+        - Browser: Chrome 130 (if applicable)
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, logs, or screenshots.
+    validations:
+      required: false

@@ -1,0 +1,94 @@
+name: Deploy Web
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'turbo.json'
+      - 'package.json'
+      - 'bun.lock'
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
+
+concurrency:
+  group: deploy-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Web to Railway
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@latest
+
+      - name: Link Railway project
+        run: railway link --project-id b3cce76b-e8e6-4323-943f-47799019db15
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Deploy to Railway (Production)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: railway up --service web --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Deploy to Railway (Preview)
+        if: github.event_name == 'pull_request'
+        id: preview
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          railway environment create "pr-web-${PR_NUMBER}" --project-id b3cce76b-e8e6-4323-943f-47799019db15 2>/dev/null || true
+          railway up \
+            --service web \
+            --environment "pr-web-${PR_NUMBER}" \
+            --detach
+          URL=$(railway domain \
+            --service web \
+            --environment "pr-web-${PR_NUMBER}" \
+            2>/dev/null | grep -o 'https://[^ ]*' | head -1 || echo "")
+          if [[ -z "$URL" ]]; then
+            URL="https://web-pr-${PR_NUMBER}.up.railway.app"
+          fi
+          echo "preview-url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Comment preview URL on PR
+        if: github.event_name == 'pull_request' && steps.preview.outputs.preview-url != ''
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const body = `**Web Preview:** ${process.env.PREVIEW_URL}`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body.startsWith('**Web Preview:**'));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.preview-url }}

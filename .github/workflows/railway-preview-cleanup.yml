@@ -1,0 +1,26 @@
+name: Railway Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    name: Delete Preview Environment
+    runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@latest
+
+      - name: Link Railway project
+        run: railway link --project-id b3cce76b-e8e6-4323-943f-47799019db15
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Delete preview environment
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          railway environment delete "pr-${PR_NUMBER}" --yes 2>/dev/null || true

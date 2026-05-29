@@ -1,0 +1,52 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "boundaries"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:boundaries/recommended"
+  ],
+  "settings": {
+    "boundaries/elements": [
+      { "type": "domain", "pattern": "packages/domain/src/*" },
+      { "type": "validators", "pattern": "packages/validators/src/*" },
+      { "type": "db", "pattern": "packages/db/src/*" },
+      { "type": "auth", "pattern": "packages/auth/src/*" },
+      { "type": "api", "pattern": "packages/api/src/*" },
+      { "type": "ui", "pattern": "packages/ui/src/*" },
+      { "type": "apps", "pattern": "apps/*/src/*" }
+    ],
+    "import/resolver": {
+      "typescript": true
+    }
+  },
+  "rules": {
+    "boundaries/element-types": [
+      2,
+      {
+        "default": "disallow",
+        "rules": [
+          { "from": "domain", "allow": [] },
+          { "from": "validators", "allow": ["domain"] },
+          { "from": "db", "allow": ["domain"] },
+          { "from": "auth", "allow": ["db", "domain"] },
+          { "from": "api", "allow": ["db", "auth", "domain", "validators"] },
+          { "from": "ui", "allow": [] },
+          {
+            "from": "apps",
+            "allow": ["api", "auth", "ui", "domain", "validators", "db"]
+          }
+        ]
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "error",
+    "no-console": "warn"
+  },
+  "ignorePatterns": ["node_modules", "dist", ".next", ".turbo", "*.config.js", "*.config.mjs"]
+}

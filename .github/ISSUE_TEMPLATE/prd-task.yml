@@ -1,0 +1,99 @@
+name: PRD Task
+description: Create an issue for a specific PRD implementation task
+title: '[PRD-NNN] Task #N: '
+labels: ['prd-task']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template maps to Section 6 (Implementation Plan) of a PRD. One issue per task row.
+
+  - type: input
+    id: prd-id
+    attributes:
+      label: PRD ID
+      description: Which PRD does this task belong to?
+      placeholder: 'PRD-001'
+    validations:
+      required: true
+
+  - type: input
+    id: task-number
+    attributes:
+      label: Task Number
+      description: The task number from the PRD's Implementation Plan table.
+      placeholder: '3'
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: What needs to be done? Copy or summarize from the PRD task table.
+    validations:
+      required: true
+
+  - type: input
+    id: estimate
+    attributes:
+      label: Estimate
+      description: Time estimate from the PRD.
+      placeholder: '30m'
+    validations:
+      required: false
+
+  - type: input
+    id: task-dependencies
+    attributes:
+      label: Task Dependencies
+      description: Which tasks must be completed first? (from the PRD table)
+      placeholder: 'Task 1, Task 2'
+    validations:
+      required: false
+
+  - type: dropdown
+    id: claude-candidate
+    attributes:
+      label: Claude Code Candidate?
+      description: Can Claude Code handle this task?
+      options:
+        - 'Yes'
+        - 'Partial — AI generates, human reviews'
+        - 'No — requires manual work'
+    validations:
+      required: true
+
+  - type: textarea
+    id: context-needed
+    attributes:
+      label: Context Needed
+      description: What files or knowledge does Claude Code need before starting?
+      placeholder: 'Read PRD-001 section 5.4 for file structure, section 5.2 for architecture decisions...'
+    validations:
+      required: false
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: What must NOT be done? Guard rails for implementation.
+    validations:
+      required: false
+
+  - type: input
+    id: verification
+    attributes:
+      label: Verification Command
+      description: Shell command to verify the task is complete.
+      placeholder: 'bun turbo type-check && bun test'
+    validations:
+      required: false
+
+  - type: textarea
+    id: done-state
+    attributes:
+      label: Done State
+      description: How do you know this task is complete?
+    validations:
+      required: true
