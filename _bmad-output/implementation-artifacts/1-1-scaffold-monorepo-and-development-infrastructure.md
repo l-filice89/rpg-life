@@ -403,7 +403,7 @@ _Code review 2026-05-29 (3 layers: Blind Hunter, Edge Case Hunter, Acceptance Au
 - [x] [Review][Patch] `.env.example` active default `API_URL` now `http://localhost:3002`; docker host passed via build arg [.env.example]
 - [x] [Review][Patch] `apps/api/package.json` `start`→`src/start.ts`, `build`→`src/start.ts`, `main`→`src/app.ts`; removed dead `src/index.ts` [apps/api/package.json]
 - [x] [Review][Patch] `user_progress.focus_balance` now has `CHECK (focus_balance >= 0)` in schema + initial migration [packages/db/src/schema/user-progress.ts, packages/db/migrations/0000_init.sql]
-- [x] [Review][Patch] web `dev` now uses `next dev --port ${PORT_WEB:-3000}` to honor resolved port [apps/web/package.json]
+- [x] [Review][Patch] web `dev` now uses `next dev --port ${PORT_WEB:3000}` to honor resolved port [apps/web/package.json]
 - [x] [Review][Patch] `DATABASE_URL` fallback defaults aligned to `file:../../data/rpg-life.db` across drizzle.config + client [packages/db/drizzle.config.ts, packages/db/src/client.ts]
 - [x] [Review][Patch] Web Dockerfile sets `ENV HOSTNAME=0.0.0.0` for Next standalone bind [apps/web/Dockerfile]
 - [x] [Review][Patch] API compose service sets `NODE_ENV=production` [docker-compose.yml]

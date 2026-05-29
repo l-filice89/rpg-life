@@ -19,7 +19,7 @@
 | Modify | `apps/api/src/lib/env.ts:4`          | Rename schema key `PORT` → `PORT_API`                                  |
 | Modify | `apps/api/src/index.ts:5`            | `port: env.PORT` → `port: Number(process.env.PORT ?? env.PORT_API)`    |
 | Modify | `apps/api/src/__tests__/env.test.ts` | Rename `PORT` → `PORT_API` in inline schema + all assertions           |
-| Modify | `apps/web/package.json`              | `dev` script: add `--port ${PORT_WEB:-3000}`                           |
+| Modify | `apps/web/package.json`              | `dev` script: add `--port ${PORT_WEB:3000}`                           |
 | Modify | `apps/marketing/package.json`        | `dev`+`start` scripts: add `--port ${PORT_MARKETING:-3001}`            |
 | Modify | `apps/docs/package.json`             | `dev`+`start` scripts: add `--port ${PORT_DOCS:-3003}`                 |
 | Modify | `apps/storybook/package.json`        | `storybook:dev` script: `-p ${PORT_STORYBOOK:-6006}`                   |
@@ -213,7 +213,7 @@ git commit -m "feat: replace PORT with PORT_* vars in .env.example files"
 
 Current `dev` script: `"next dev --port 3000"`
 
-Change to: `"next dev --port ${PORT_WEB:-3000}"`
+Change to: `"next dev --port ${PORT_WEB:3000}"`
 
 (`start` script has no `--port` flag — Next.js defaults to 3000, matching `PORT_WEB`'s default — leave it unchanged.)
 

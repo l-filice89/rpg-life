@@ -12,7 +12,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/lib/utils": ["../../packages/ui/src/lib/utils.ts"],
+      "@/components/ui/*": ["../../packages/ui/src/components/ui/*"]
     },
     "allowJs": true,
     "incremental": true
