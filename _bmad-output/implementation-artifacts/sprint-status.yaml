@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-29
-last_updated: 2026-05-29T23:45:00
+last_updated: 2026-05-29T14:30:00
 project: rpg-life
 project_key: NOKEY
 tracking_system: file-system
@@ -46,7 +46,7 @@ development_status:
   1-1-scaffold-monorepo-and-development-infrastructure: done
   1-2-crystal-path-design-tokens-and-shadcn-foundation: done
   1-3-magic-link-sign-in: done
-  1-4-app-shell-and-sidebar-navigation: backlog
+  1-4-app-shell-and-sidebar-navigation: done
   1-5-first-run-tutorial: backlog
   epic-1-retrospective: optional
   epic-2: backlog

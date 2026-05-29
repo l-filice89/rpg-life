@@ -24,24 +24,35 @@ bun run test:e2e:ui  # Playwright interactive UI
 ```
 src/
   app/
-    layout.tsx              # Root layout + providers
-    page.tsx                # Interim home (token showcase; Quest Board in Story 1.4)
+    layout.tsx              # Root layout (html, font, globals)
+    page.tsx                # Redirect / → /quest-board
     (auth)/
       layout.tsx            # Auth gate layout (star motif)
       sign-in/page.tsx      # Magic link sign-in + post-send state
+    (app)/
+      layout.tsx            # AppProviders + AppShell (authenticated)
+      quest-board/page.tsx  # Quest Board placeholder (Epic 2)
+      profile/page.tsx      # My Profile placeholder (Epic 3)
   components/
     auth/sign-in-form.tsx   # Client island for Auth B flow
+    sidebar/
+      app-shell.tsx         # Shell layout + sidebar state
+      app-header.tsx        # Hamburger + page title
+      sidebar-overlay.tsx   # Left Sheet nav overlay
+    providers/app-providers.tsx  # tRPC + QueryClient (used in (app)/layout)
   lib/
+    page-title.ts           # Route → header title helper
     trpc-server.ts          # RSC tRPC caller
     env.ts                  # Validated env
-  middleware.ts             # src/middleware.ts — session gate → /sign-in (must be under src/ when using src/app)
+  middleware.ts             # Session gate → /sign-in (must be under src/ when using src/app)
 ```
 
 ## Auth Flow
 
-- Unauthenticated users hitting protected routes are redirected to `/sign-in` by `middleware.ts`
-- Sign-in uses `authClient.signIn.magicLink` (Resend email; link opens on same origin via Next rewrite)
+- Unauthenticated users hitting protected routes (`/quest-board`, `/profile`, etc.) are redirected to `/sign-in` by `middleware.ts`
+- Sign-in uses `authClient.signIn.magicLink` with `callbackURL: '/quest-board'`
 - Post-send confirmation stays on `/sign-in` (masked email + resend)
+- Authenticated users on `/sign-in` redirect to `/quest-board`
 - Session cookie is HttpOnly on the web origin; `/api/auth/*` and `/api/trpc/*` proxy to the api service
 - Set `NEXT_PUBLIC_BETTER_AUTH_URL` to match `BETTER_AUTH_URL` (default `http://localhost:3000`)
 
@@ -49,7 +60,7 @@ src/
 
 Playwright tests in `e2e/`:
 
-- `auth.spec.ts` — redirect to sign-in, email validation copy
+- `auth.spec.ts` — redirect to sign-in, protected routes, email validation copy
 - Full magic-link inbox flow → Epic 4
 
 Run with `bun run test:e2e`. Config in `playwright.config.ts`.

@@ -38,7 +38,7 @@ export function SignInForm() {
 
     const { error } = await signIn.magicLink({
       email: parsed.data,
-      callbackURL: '/',
+      callbackURL: '/quest-board',
     });
 
     setIsPending(false);

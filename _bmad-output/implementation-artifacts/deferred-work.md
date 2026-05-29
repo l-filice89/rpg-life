@@ -21,3 +21,8 @@
 
 - Full magic-link E2E (inbox + click-through) — Epic 4; smoke covers redirect + validation only.
 - `user` + `session` databaseHooks both call `provisionUserProgress` — redundant but idempotent via `onConflictDoNothing`.
+
+## Deferred from: code review of 1-4-app-shell-and-sidebar-navigation (2026-05-29)
+
+- No authenticated sidebar E2E (open hamburger → nav items visible) — story marked optional; Epic 4 session-fixture scope.
+- `apps/web` unit tests (`bun test src/`) not wired into root `smoke` or CI — new in 1.4; Epic 4 CI hardening.

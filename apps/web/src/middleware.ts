@@ -52,13 +52,18 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/sign-in')) {
       const session = await getSession(request);
       if (session?.user) {
-        return NextResponse.redirect(new URL('/', request.url));
+        return NextResponse.redirect(new URL('/quest-board', request.url));
       }
     }
     return NextResponse.next();
   }
 
   const session = await getSession(request);
+
+  if (session?.user && pathname === '/') {
+    return NextResponse.redirect(new URL('/quest-board', request.url));
+  }
+
   if (!session?.user) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }

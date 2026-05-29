@@ -1,9 +1,5 @@
-import { TokenShowcase } from '@/components/token-showcase';
+import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  return (
-    <main className="min-h-svh bg-background">
-      <TokenShowcase />
-    </main>
-  );
+  redirect('/quest-board');
 }
