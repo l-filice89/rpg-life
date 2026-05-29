@@ -3,6 +3,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { magicLink } from 'better-auth/plugins';
 import { Resend } from 'resend';
 import { account, db, session, user, verification } from '@rpg-life/db';
+import { provisionUserProgress } from './provision-user-progress';
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const emailFrom = process.env.EMAIL_FROM;
@@ -44,15 +45,36 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24,
   },
 
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (createdUser) => {
+          await provisionUserProgress(createdUser.id);
+        },
+      },
+    },
+    session: {
+      create: {
+        after: async (createdSession) => {
+          await provisionUserProgress(createdSession.userId);
+        },
+      },
+    },
+  },
+
   plugins: [
     magicLink({
       sendMagicLink: async ({ email, url }) => {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: emailFrom,
           to: email,
           subject: 'Your rpg-life sign-in link',
-          html: `<p><a href="${url}">Sign in to rpg-life</a></p>`,
+          html: `<p><a href="${url}">Sign in to rpg-life</a></p><p>Or copy this link into your browser:</p><p style="word-break:break-all">${url}</p>`,
         });
+
+        if (error) {
+          throw new Error(error.message);
+        }
       },
     }),
   ],

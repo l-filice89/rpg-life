@@ -16,3 +16,8 @@
 - CI runs type-check/lint only, not `next build` — CSS/Tailwind regressions may slip until Epic 4 CI hardening.
 - `/` renders token showcase until Story 1.4 app shell replaces it — intentional per Task 5.
 - No automated OS theme-switch test — manual verification only; Epic 4 E2E scope.
+
+## Deferred from: code review of 1-3-magic-link-sign-in (2026-05-29)
+
+- Full magic-link E2E (inbox + click-through) — Epic 4; smoke covers redirect + validation only.
+- `user` + `session` databaseHooks both call `provisionUserProgress` — redundant but idempotent via `onConflictDoNothing`.

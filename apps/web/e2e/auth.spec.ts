@@ -1,48 +1,16 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Auth flow', () => {
-  test('redirects unauthenticated users to login', async ({ page }) => {
-    await page.goto('/dashboard');
-    await expect(page).toHaveURL(/\/login/);
+  test('redirects unauthenticated users from home to sign-in', async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveURL(/\/sign-in/);
+    await expect(page.getByRole('heading', { name: 'Enter the realm' })).toBeVisible();
   });
 
-  test('signup → login → dashboard', async ({ page }) => {
-    const email = `test-${Date.now()}@example.com`;
-    const password = 'TestPassword123!';
-
-    // Navigate to signup
-    await page.goto('/signup');
-    await expect(page.locator('h1, h2')).toContainText(/sign up|create account/i);
-
-    // Fill signup form
-    await page.fill('input[name="name"]', 'E2E Test User');
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', password);
-    await page.click('button[type="submit"]');
-
-    // Should redirect to dashboard or login
-    await page.waitForURL(/\/(dashboard|login)/);
-
-    // If redirected to login, sign in
-    if (page.url().includes('/login')) {
-      await page.fill('input[name="email"]', email);
-      await page.fill('input[name="password"]', password);
-      await page.click('button[type="submit"]');
-      await page.waitForURL(/\/dashboard/);
-    }
-
-    // Verify dashboard is accessible
-    await expect(page).toHaveURL(/\/dashboard/);
-  });
-
-  test('login with invalid credentials shows error', async ({ page }) => {
-    await page.goto('/login');
-
-    await page.fill('input[name="email"]', 'nonexistent@example.com');
-    await page.fill('input[name="password"]', 'WrongPassword123!');
-    await page.click('button[type="submit"]');
-
-    // Should show error and stay on login page
-    await expect(page).toHaveURL(/\/login/);
+  test('shows realm address validation for invalid email', async ({ page }) => {
+    await page.goto('/sign-in');
+    await page.fill('#email-signin', 'not-an-email');
+    await page.getByRole('button', { name: 'Send sign-in link' }).click();
+    await expect(page.getByText('Enter a valid realm address')).toBeVisible();
   });
 });

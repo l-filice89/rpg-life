@@ -1,19 +1,15 @@
 import { describe, test, expect } from 'bun:test';
-import { authClient, signIn, signUp, signOut, useSession } from '../client';
+import { authClient, signIn, signOut, useSession } from '../client';
 
 describe('auth web client exports', () => {
   test('authClient is exported and defined', () => {
     expect(authClient).toBeDefined();
   });
 
-  test('signIn is exported and has email method', () => {
+  test('signIn exposes magicLink after magicLinkClient plugin', () => {
     expect(signIn).toBeDefined();
-    expect(signIn.email).toBeDefined();
-  });
-
-  test('signUp is exported and has email method', () => {
-    expect(signUp).toBeDefined();
-    expect(signUp.email).toBeDefined();
+    expect(signIn.magicLink).toBeDefined();
+    expect(typeof signIn.magicLink).toBe('function');
   });
 
   test('signOut is exported and is callable', () => {
