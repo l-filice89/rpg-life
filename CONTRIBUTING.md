@@ -1,37 +1,36 @@
 # Contributing
 
-Thanks for your interest in contributing to rpg-life! This guide covers everything you need to get started.
+Thanks for your interest in contributing to rpg-life.
 
 ## How to Contribute
 
-- **Bug reports** — [Open an issue](https://github.com/corbanb/rpg-life/issues/new?template=bug-report.yml) with steps to reproduce
-- **Feature requests** — [Open an issue](https://github.com/corbanb/rpg-life/issues/new?template=feature-request.yml) describing the feature and why it would be useful
+- **Bug reports** — [Open an issue](https://github.com/l-filice89/rpg-life/issues/new?template=bug-report.yml) with steps to reproduce
+- **Feature requests** — [Open an issue](https://github.com/l-filice89/rpg-life/issues/new?template=feature-request.yml) describing the feature and why it would be useful
 - **Pull requests** — Fork the repo, create a branch from `main`, and submit a PR
-- **Security issues** — See [SECURITY.md](.github/SECURITY.md) — do NOT open a public issue
+- **Security issues** — See [SECURITY.md](.github/SECURITY.md) — do not open a public issue
 
 ## Development Setup
 
 ```bash
-bun install                 # Install all dependencies
-cp .env.example .env.local  # Configure environment
-bun db:push                 # Push schema to dev DB
-bun db:seed                 # Seed test data
-bun dev                     # Start all workspaces
-bun run setup:ai-docs       # Download AI reference docs (optional)
+bun install
+cp .env.example .env.local   # set BETTER_AUTH_SECRET + Resend keys
+bun db:migrate
+bun db:seed                  # optional; api also seeds skills on startup
+bun dev
 ```
 
-See [docs/getting-started.md](docs/getting-started.md) for the detailed setup checklist.
+See [README.md](README.md) for Docker and smoke verification.
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) >= 1.1
-- [Node.js](https://nodejs.org) >= 20 (for Expo/Electron compatibility)
+- [Bun](https://bun.sh) 1.3+
+- [Resend](https://resend.com) account for magic-link email (required even in local dev)
 - Git
 
 ## Branch Strategy
 
 - `main` — production-ready, always deployable
-- `feat/<name>` — new features or PRD implementations
+- `feat/<name>` — new features
 - `fix/<name>` — bug fixes
 - `chore/<name>` — tooling, config, dependencies
 - `docs/<name>` — documentation-only changes
@@ -42,80 +41,41 @@ Use conventional commits:
 
 ```
 type(scope): description
-
-[optional body]
 ```
 
 **Types**: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`
 
-**Scopes**: workspace name (`api`, `web`, `shared`, `database`, `auth`) or feature area (`testing`, `e2e`, `deps`)
-
-**Examples**:
-
-- `feat(api): add user preferences router`
-- `fix(auth): handle expired session redirect`
-- `chore(deps): bump @trpc/server to 11.1`
+**Scopes**: workspace name (`api`, `web`, `db`, `auth`, `ui`) or feature area (`quest-board`, `e2e`, `deps`)
 
 ## Pull Requests
 
 - One feature or fix per PR
-- Keep PRs under 400 lines when possible
-- Include a summary, related PRD reference, and test plan
+- Include a summary and test plan
 - All CI checks must pass before merge
-- Squash merge to keep `main` history clean
 
 ## Code Conventions
 
-### Naming
-
-| Thing               | Convention           | Example           |
-| ------------------- | -------------------- | ----------------- |
-| Files               | kebab-case           | `user-profile.ts` |
-| Components          | PascalCase           | `UserProfile`     |
-| Functions/variables | camelCase            | `getUserById`     |
-| Constants           | SCREAMING_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| Database tables     | snake_case           | `user_profiles`   |
-| tRPC routers        | camelCase            | `projects.create` |
-
-### Types
-
-- Zod schemas are the source of truth for all types
-- Define schemas in `packages/shared/` and infer with `z.infer<typeof Schema>`
-- Never duplicate types manually
-
-### Imports
-
-- `@packages/*` for cross-package imports
-- `@/*` for intra-workspace imports
-- Always use path aliases, never relative paths across package boundaries
-
-### Errors
-
-- Use `Errors.*` constructors from `apps/api/src/lib/errors.ts`
-- Include `cause` for error chaining
-- Map to tRPC error codes: `NOT_FOUND`, `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`
-
-### Logging
-
-- Use Pino child loggers: `apiLogger`, `dbLogger`, `authLogger`, `aiLogger`
-- Never use `console.log` in production code
+- Zod schemas in `packages/validators/` are the source of truth for shared types
+- Use `@rpg-life/*` workspace imports across package boundaries
+- Use Pino loggers in server code; avoid `console.log` in production paths
+- SQLite via Drizzle in `packages/db`; run migrations with `bun db:migrate`
 
 ## Testing
 
-- Run `bun test` before submitting a PR
-- See [docs/testing-conventions.md](docs/testing-conventions.md) for patterns
-- Unit tests for pure functions, integration tests for routers, E2E for critical flows
+```bash
+bun run smoke              # primary verification suite
+bun turbo type-check
+bun turbo lint
+cd apps/web && bun run test:e2e   # Playwright (auth flows)
+```
 
 ## PR Checklist
 
-Before submitting, verify:
-
-- [ ] `bun type-check` passes
-- [ ] `bun lint` passes
-- [ ] `bun test` passes
+- [ ] `bun turbo type-check` passes
+- [ ] `bun turbo lint` passes
+- [ ] `bun run smoke` passes
 - [ ] No `console.log` in production code
 - [ ] No `any` types
-- [ ] No dependency boundary violations
 - [ ] Documentation updated if needed
 
 ## License

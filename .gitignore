@@ -7,9 +7,7 @@ packages/.tmp/
 # Build outputs
 dist/
 storybook-static/
-create-x4/dist/
 .next/
-.expo/
 out/
 
 # Turbo
@@ -39,16 +37,6 @@ Thumbs.db
 .claude/docs/
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
-
-# Superpowers
-.superpowers/
-
-
-# Plans
-docs/plans/
-
-# Videos
-videos/
 
 # Debug
 *.log

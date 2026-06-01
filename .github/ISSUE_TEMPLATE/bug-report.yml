@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in x4-mono
+description: Report a bug in rpg-life
 title: '[Bug]: '
 labels: ['bug', 'triage']
 body:
@@ -14,15 +14,14 @@ body:
       label: Affected Workspace
       description: Which workspace is the bug in?
       options:
-        - 'packages/shared'
-        - 'packages/database'
+        - 'packages/db'
+        - 'packages/api'
         - 'packages/auth'
-        - 'packages/ai-integrations'
+        - 'packages/validators'
+        - 'packages/ui'
+        - 'packages/domain'
         - 'apps/api'
         - 'apps/web'
-        - 'apps/mobile-main'
-        - 'apps/desktop'
-        - 'apps/marketing'
         - 'Root / Monorepo tooling'
         - 'Multiple / Unknown'
     validations:
@@ -43,7 +42,7 @@ body:
       label: Steps to Reproduce
       description: Step-by-step instructions to reproduce the bug.
       placeholder: |
-        1. Run `bun turbo dev`
+        1. Run `bun dev`
         2. Navigate to ...
         3. Click on ...
         4. See error
@@ -73,8 +72,7 @@ body:
       description: Relevant version info.
       placeholder: |
         - OS: macOS 15.x
-        - Bun: 1.x.x
-        - Node.js: 20.x.x (if applicable)
+        - Bun: 1.3.x
         - Browser: Chrome 130 (if applicable)
     validations:
       required: false

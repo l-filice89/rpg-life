@@ -1,28 +1,19 @@
-# x4-mono Code Owners
+# rpg-life Code Owners
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-# Default owner for everything
-* @corbanb
+* @l-filice89
 
-# Packages
-packages/shared/        @corbanb
-packages/database/      @corbanb
-packages/auth/          @corbanb
-packages/ai-integrations/ @corbanb
+packages/db/        @l-filice89
+packages/api/       @l-filice89
+packages/auth/      @l-filice89
+packages/validators/ @l-filice89
+packages/ui/        @l-filice89
+packages/domain/    @l-filice89
 
-# Apps
-apps/api/               @corbanb
-apps/web/               @corbanb
-apps/mobile-main/       @corbanb
-apps/desktop/           @corbanb
-apps/marketing/         @corbanb
+apps/api/           @l-filice89
+apps/web/           @l-filice89
 
-# Infrastructure & Config
-.github/                @corbanb
-turbo.json              @corbanb
-tsconfig.base.json      @corbanb
-.eslintrc.json          @corbanb
-
-# Documentation & AI Config
-CLAUDE.md               @corbanb
-wiki/                   @corbanb
+.github/            @l-filice89
+turbo.json          @l-filice89
+tsconfig.base.json  @l-filice89
+.eslintrc.json      @l-filice89

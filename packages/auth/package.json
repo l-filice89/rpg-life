@@ -14,16 +14,7 @@
     "resend": "4.0.0"
   },
   "devDependencies": {
-    "drizzle-orm": "^0.45.1",
-    "expo-secure-store": "~14.2.4"
-  },
-  "peerDependencies": {
-    "expo-secure-store": ">=13.0.0"
-  },
-  "peerDependenciesMeta": {
-    "expo-secure-store": {
-      "optional": true
-    }
+    "drizzle-orm": "^0.45.1"
   },
   "scripts": {
     "dev": "echo 'no dev server'",

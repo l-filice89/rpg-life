@@ -31,15 +31,14 @@ body:
       label: Affected Workspace
       description: Which workspace would this feature affect?
       options:
-        - 'packages/shared'
-        - 'packages/database'
+        - 'packages/db'
+        - 'packages/api'
         - 'packages/auth'
-        - 'packages/ai-integrations'
+        - 'packages/validators'
+        - 'packages/ui'
+        - 'packages/domain'
         - 'apps/api'
         - 'apps/web'
-        - 'apps/mobile-main'
-        - 'apps/desktop'
-        - 'apps/marketing'
         - 'Root / Monorepo tooling'
         - 'Multiple / Cross-cutting'
     validations:
@@ -50,15 +49,6 @@ body:
     attributes:
       label: Alternatives Considered
       description: Describe alternatives you've considered.
-    validations:
-      required: false
-
-  - type: input
-    id: prd
-    attributes:
-      label: Related PRD
-      description: If this relates to an existing PRD, reference it here.
-      placeholder: 'PRD-005'
     validations:
       required: false
 
