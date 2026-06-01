@@ -11,7 +11,7 @@
   "dependencies": {
     "@rpg-life/db": "workspace:*",
     "better-auth": "1.2.8",
-    "resend": "4.0.0"
+    "resend": "6.12.4"
   },
   "devDependencies": {
     "drizzle-orm": "^0.45.1"
