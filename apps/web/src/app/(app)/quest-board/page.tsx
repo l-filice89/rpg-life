@@ -1,8 +1,9 @@
-export default function QuestBoardPage() {
-  return (
-    <div className="py-6">
-      <h2 className="text-display-sm text-foreground">Quest Board</h2>
-      <p className="mt-2 text-muted-foreground">Your quests will appear here.</p>
-    </div>
-  );
+import { QuestBoard } from '@/components/quest-board/QuestBoard';
+import { createServerTrpcClient } from '@/lib/trpc-server';
+
+export default async function QuestBoardPage() {
+  const trpc = await createServerTrpcClient();
+  const tasks = await trpc.tasks.list.query();
+
+  return <QuestBoard tasks={tasks} />;
 }

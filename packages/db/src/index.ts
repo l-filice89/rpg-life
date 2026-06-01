@@ -8,4 +8,6 @@ export * from './schema/skills';
 export * from './schema/task-skills';
 export * from './schema/user-skills';
 export { runSeed } from './seed';
-export { eq, ne, gt, gte, lt, lte, and, or, like, desc, asc, sql, count, sum } from 'drizzle-orm';
+export { seedSkills } from './seed/skills';
+export { eq, ne, gt, gte, lt, lte, and, or, like, desc, asc, sql, count, sum, isNull, inArray } from 'drizzle-orm';
+export { listOpenTasksByOwner, type TaskListItem } from './repositories/tasks';

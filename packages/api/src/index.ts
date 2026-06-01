@@ -1,3 +1,6 @@
+import type { inferRouterOutputs } from '@trpc/server';
+import type { AppRouter } from './root';
+
 export {
   appRouter,
   type AppRouter,
@@ -6,3 +9,5 @@ export {
   router,
 } from './root';
 export { createContext, type Context } from './context';
+
+export type TaskListItem = inferRouterOutputs<AppRouter>['tasks']['list'][number];

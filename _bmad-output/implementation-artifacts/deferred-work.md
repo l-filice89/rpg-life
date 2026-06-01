@@ -37,3 +37,13 @@
 
 - `tasks.owner_id ON DELETE CASCADE` hard-deletes all tasks if user row is removed — MVP soft-delete is `deleted_at` only; user-delete cascade acceptable until account deletion is modeled.
 - Docker/README changes exceed pure schema scope but satisfy Task 6 verification — intentional supporting work for compose smoke.
+
+## Deferred from: code review of 2-2-list-open-quests-on-quest-board (2026-06-01)
+
+- No secondary sort key for tasks sharing same `due_date` — MVP scale; order stable enough for Ben-scale lists.
+- `error.tsx` accepts `error` prop but never surfaces digest/message — debug polish.
+- Repository casts `difficulty`/`skillCode` without runtime validation — validators deferred to Story 2.4+.
+- Layout-level fetch failure bypasses quest-board error boundary — pre-existing from Story 1.5 deferred-work.
+- Shared in-memory test DB accumulates rows across tests — matches tutorial.test.ts pattern; per-test userIds isolate assertions.
+- Expired session on `tasks.list` shows retry loop instead of sign-in redirect — auth UX hardening.
+- `<h2>` per quest row may clutter heading outline — deferred to Story 2.3 QuestRow a11y pass.
