@@ -1,10 +1,58 @@
 import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { SKILL_CATALOG, type SkillCode, type TaskCreateInput } from '@rpg-life/validators';
+import {
+  SKILL_CATALOG,
+  type SkillCode,
+  type TaskCreateInput,
+  type TaskUpdateInput,
+} from '@rpg-life/validators';
 import type { Database } from '../client';
 import { taskSkills } from '../schema/task-skills';
 import { tasks } from '../schema/tasks';
 
 const skillSortOrder = new Map(SKILL_CATALOG.map((skill) => [skill.code, skill.sortOrder]));
+
+export type TaskMutationErrorCode = 'NOT_FOUND' | 'BAD_REQUEST';
+
+export class TaskMutationError extends Error {
+  readonly code: TaskMutationErrorCode;
+
+  constructor(code: TaskMutationErrorCode, message: string) {
+    super(message);
+    this.name = 'TaskMutationError';
+    this.code = code;
+  }
+}
+
+function isOverdueUtc(dueDate: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dueDate);
+  if (!match) {
+    return false;
+  }
+
+  const today = new Date();
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const dueUtc = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return dueUtc < todayUtc;
+}
+
+async function getOpenTaskForOwner(db: Database, ownerId: string, taskId: string) {
+  const rows = await db
+    .select()
+    .from(tasks)
+    .where(and(eq(tasks.id, taskId), eq(tasks.ownerId, ownerId), isNull(tasks.deletedAt)))
+    .limit(1);
+
+  const task = rows[0];
+  if (!task) {
+    throw new TaskMutationError('NOT_FOUND', 'Quest not found');
+  }
+
+  if (task.status !== 'open') {
+    throw new TaskMutationError('BAD_REQUEST', 'Completed quests cannot be edited');
+  }
+
+  return task;
+}
 
 export type TaskListItem = {
   id: string;
@@ -107,4 +155,90 @@ export async function createTaskForOwner(
     skillCodes: sortSkillCodes([...input.skillCodes]),
     createdAt: now,
   };
+}
+
+export async function updateTaskForOwner(
+  db: Database,
+  ownerId: string,
+  input: TaskUpdateInput,
+): Promise<TaskListItem> {
+  const existing = await getOpenTaskForOwner(db, ownerId, input.id);
+  const dueDate = input.dueDate ?? null;
+
+  if (existing.dueDate === null && dueDate !== null) {
+    throw new TaskMutationError(
+      'BAD_REQUEST',
+      'Adding a due date requires Focus — coming in a future update.',
+    );
+  }
+
+  if (
+    existing.dueDate &&
+    isOverdueUtc(existing.dueDate) &&
+    dueDate !== existing.dueDate
+  ) {
+    throw new TaskMutationError(
+      'BAD_REQUEST',
+      'Rescheduling or clearing an overdue due date requires Focus — coming in a future update.',
+    );
+  }
+
+  const now = new Date().toISOString();
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(tasks)
+      .set({
+        title: input.title,
+        difficulty: input.difficulty,
+        dueDate,
+        modifiedAt: now,
+      })
+      .where(eq(tasks.id, input.id));
+
+    await tx.delete(taskSkills).where(eq(taskSkills.taskId, input.id));
+
+    for (const skillCode of input.skillCodes) {
+      await tx.insert(taskSkills).values({
+        taskId: input.id,
+        skillCode,
+      });
+    }
+  });
+
+  return {
+    id: input.id,
+    title: input.title,
+    difficulty: input.difficulty,
+    dueDate,
+    skillCodes: sortSkillCodes([...input.skillCodes]),
+    createdAt: existing.createdAt,
+  };
+}
+
+export async function softDeleteTaskForOwner(
+  db: Database,
+  ownerId: string,
+  taskId: string,
+): Promise<{ id: string }> {
+  const existing = await getOpenTaskForOwner(db, ownerId, taskId);
+
+  if (existing.dueDate && isOverdueUtc(existing.dueDate)) {
+    throw new TaskMutationError(
+      'BAD_REQUEST',
+      'Overdue quests require Focus to delete.',
+    );
+  }
+
+  const now = new Date().toISOString();
+
+  await db
+    .update(tasks)
+    .set({
+      deletedAt: now,
+      modifiedAt: now,
+    })
+    .where(eq(tasks.id, taskId));
+
+  return { id: taskId };
 }

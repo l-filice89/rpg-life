@@ -21,3 +21,15 @@ export const TaskCreateSchema = z.object({
 });
 
 export type TaskCreateInput = z.infer<typeof TaskCreateSchema>;
+
+export const TaskUpdateSchema = TaskCreateSchema.extend({
+  id: z.string().uuid(),
+});
+
+export type TaskUpdateInput = z.infer<typeof TaskUpdateSchema>;
+
+export const TaskDeleteSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export type TaskDeleteInput = z.infer<typeof TaskDeleteSchema>;

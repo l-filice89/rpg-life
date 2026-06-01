@@ -57,3 +57,11 @@
 
 - Invalid `skill_code` FK errors surface as raw DB errors, not `TRPCError` — Zod enum blocks normal clients; same class as Story 2.2 repository cast deferral.
 - Shared in-memory test DB accumulates rows across tests — matches `tasks-list.test.ts` pattern; per-test userIds isolate assertions.
+
+## Deferred from: code review of 2-5-edit-and-delete-open-quests (2026-06-01)
+
+- TOCTOU: update/delete read task status/deletedAt once, no re-check inside transaction — MVP single-tab scale.
+- Concurrent tab last-write-win on skill replace — no optimistic locking; Ben-scale MVP.
+- `router.refresh()` while edit sheet open resets form from new `task` prop — rare edge.
+- Invalid calendar dates pass regex-only Zod (e.g. 2026-02-31) — same class as Story 2.4 create.
+- Cancelled tasks get misleading "Completed quests cannot be edited" message — cancelled status not surfaced in MVP UI.

@@ -13,6 +13,10 @@ export { eq, ne, gt, gte, lt, lte, and, or, like, desc, asc, sql, count, sum, is
 export {
   listOpenTasksByOwner,
   createTaskForOwner,
+  updateTaskForOwner,
+  softDeleteTaskForOwner,
+  TaskMutationError,
   type TaskListItem,
+  type TaskMutationErrorCode,
 } from './repositories/tasks';
 export { getProfileSummary, type ProfileSummary } from './repositories/profile';
