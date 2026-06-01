@@ -58,6 +58,10 @@
 - Invalid `skill_code` FK errors surface as raw DB errors, not `TRPCError` — Zod enum blocks normal clients; same class as Story 2.2 repository cast deferral.
 - Shared in-memory test DB accumulates rows across tests — matches `tasks-list.test.ts` pattern; per-test userIds isolate assertions.
 
+## Deferred from: code review of 2-6-quest-board-filters (2026-06-01)
+
+- Filter provider hydrates from sessionStorage in `useEffect` after default state renders — brief flash of unfiltered list on hard refresh; common client-hydration pattern.
+
 ## Deferred from: code review of 2-5-edit-and-delete-open-quests (2026-06-01)
 
 - TOCTOU: update/delete read task status/deletedAt once, no re-check inside transaction — MVP single-tab scale.

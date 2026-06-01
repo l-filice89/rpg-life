@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { QuestBoardFilterProvider } from '@/components/quest-board/quest-board-filter-context';
 import { TutorialSheet } from '@/components/tutorial/tutorial-sheet';
 import { AppHeader } from './app-header';
 import { SidebarOverlay } from './sidebar-overlay';
@@ -38,7 +39,9 @@ export function AppShell({ children, initialTutorialSeen }: AppShellProps) {
         onOpenChange={setTutorialOpen}
         mode={tutorialMode}
       />
-      <main className="mx-auto w-full max-w-lg flex-1 px-5 md:max-w-lg lg:max-w-2xl">{children}</main>
+      <main className="mx-auto w-full max-w-lg flex-1 px-5 md:max-w-lg lg:max-w-2xl">
+        <QuestBoardFilterProvider>{children}</QuestBoardFilterProvider>
+      </main>
     </div>
   );
 }

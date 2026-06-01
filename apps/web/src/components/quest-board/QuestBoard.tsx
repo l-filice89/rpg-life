@@ -1,7 +1,7 @@
 import type { ProfileSummary, TaskListItem } from '@rpg-life/api';
 import { QuestBoardFab } from './QuestBoardFab';
 import { QuestBoardHeader } from './QuestBoardHeader';
-import { QuestRow } from './QuestRow';
+import { QuestBoardTaskList } from './QuestBoardTaskList';
 
 type QuestBoardProps = {
   tasks: TaskListItem[];
@@ -15,13 +15,7 @@ export function QuestBoard({ tasks, profile }: QuestBoardProps) {
       {tasks.length === 0 ? (
         <p className="text-muted-foreground">Your quests will appear here.</p>
       ) : (
-        <ul role="list" className="flex flex-col gap-5">
-          {tasks.map((task) => (
-            <li key={task.id}>
-              <QuestRow task={task} />
-            </li>
-          ))}
-        </ul>
+        <QuestBoardTaskList tasks={tasks} />
       )}
       <QuestBoardFab />
     </div>

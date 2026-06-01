@@ -1,3 +1,5 @@
+'use client';
+
 import type { TaskListItem } from '@rpg-life/api';
 import { cn } from '@rpg-life/ui/lib/utils';
 import { isOverdue } from '@/lib/format-due-date';
