@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { TaskListItem } from '@rpg-life/api';
 import { cn } from '@rpg-life/ui/lib/utils';
 import { isOverdue } from '@/lib/format-due-date';
@@ -11,6 +12,7 @@ type QuestRowProps = {
 };
 
 export function QuestRow({ task }: QuestRowProps) {
+  const [isCompleting, setIsCompleting] = useState(false);
   const overdue = task.dueDate ? isOverdue(task.dueDate) : false;
 
   return (
@@ -18,10 +20,16 @@ export function QuestRow({ task }: QuestRowProps) {
       className={cn(
         'flex items-start gap-3.5 rounded-md border bg-card px-5 py-4',
         overdue && 'border-overdue-border',
+        isCompleting && 'pointer-events-none opacity-60',
       )}
+      aria-busy={isCompleting}
     >
-      <QuestRowActions taskTitle={task.title} />
-      <QuestRowEditTrigger task={task} />
+      <QuestRowActions
+        taskId={task.id}
+        taskTitle={task.title}
+        onCompletingChange={setIsCompleting}
+      />
+      <QuestRowEditTrigger task={task} disabled={isCompleting} />
     </article>
   );
 }

@@ -4,7 +4,7 @@ baseline_commit: b810eb0
 
 # Story 3.2: Confirm and Complete Quest
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -38,20 +38,20 @@ So that I don't accidentally award XP for unfinished work.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Validators — `CompleteTaskSchema`** (AC: #9)
-  - [ ] Create `packages/validators/src/complete.ts`:
+- [x] **Task 1: Validators — `CompleteTaskSchema`** (AC: #9)
+  - [x] Create `packages/validators/src/complete.ts`:
     ```typescript
     CompleteTaskSchema = z.object({
       taskId: z.string().uuid(),
       timezone: z.string().min(1), // IANA e.g. Europe/Ljubljana
     })
     ```
-  - [ ] Export `CompleteTaskInput`, `RewardPayload` type shape (mirror architecture reward payload)
-  - [ ] Export from `packages/validators/src/index.ts`
+  - [x] Export `CompleteTaskInput`, `RewardPayload` type shape (mirror architecture reward payload)
+  - [x] Export from `packages/validators/src/index.ts`
 
-- [ ] **Task 2: Service — `completeTaskForOwner`** (AC: #3, #5, #7)
-  - [ ] Create `packages/api/src/services/complete-task.ts` (or `packages/db/src/repositories/complete-task.ts` per architecture — prefer `packages/api/src/services/complete-task.ts` orchestrating domain + repo)
-  - [ ] Flow in Drizzle **transaction**:
+- [x] **Task 2: Service — `completeTaskForOwner`** (AC: #3, #5, #7)
+  - [x] Create `packages/api/src/services/complete-task.ts` (or `packages/db/src/repositories/complete-task.ts` per architecture — prefer `packages/api/src/services/complete-task.ts` orchestrating domain + repo)
+  - [x] Flow in Drizzle **transaction**:
     1. Load task + task_skills + owner guard (`open`, not deleted)
     2. If `completed_at` already set → return stored reward payload from `xp_awarded`, `freshness_multiplier`, persisted skill split (reconstruct from DB or store JSON — prefer recompute from stored fields for idempotency)
     3. Else: call domain `computeFreshness`, `computeXpAward`, `splitXpAcrossSkills`, `computeFocusEarn`
@@ -59,48 +59,72 @@ So that I don't accidentally award XP for unfinished work.
     5. Update `user_progress.focus_balance` if focus earned
     6. Update task: `status='completed'`, `completed_at`, `xp_awarded`, `freshness_multiplier`
     7. Return `RewardPayload` including `heroLevelBefore`, `heroLevelAfter`, `leveledUp`, `focusEarned`, optional `freshness` breakdown when multiplier < 1
-  - [ ] Import all math from `@rpg-life/domain` — zero inline XP/focus formulas
+  - [x] Import all math from `@rpg-life/domain` — zero inline XP/focus formulas
 
-- [ ] **Task 3: tRPC — `tasks.complete`** (AC: #3, #5, #8)
-  - [ ] Add to `packages/api/src/routers/tasks.ts`:
+- [x] **Task 3: tRPC — `tasks.complete`** (AC: #3, #5, #8)
+  - [x] Add to `packages/api/src/routers/tasks.ts`:
     ```typescript
     complete: protectedProcedure
       .input(CompleteTaskSchema)
       .mutation(({ ctx, input }) => completeTaskForOwner(ctx.db, ctx.user.id, input))
     ```
-  - [ ] Map errors: `NOT_FOUND` (wrong owner/open), `BAD_REQUEST` (no skills, invalid timezone)
-  - [ ] Export `RewardPayload` from `@rpg-life/api`
+  - [x] Map errors: `NOT_FOUND` (wrong owner/open), `BAD_REQUEST` (no skills, invalid timezone)
+  - [x] Export `RewardPayload` from `@rpg-life/api`
 
-- [ ] **Task 4: `ConfirmCompleteModal` client component** (AC: #1–#2, #4, #10)
-  - [ ] Create `apps/web/src/components/modals/ConfirmCompleteModal.tsx` — `"use client"`
-  - [ ] shadcn `Dialog`; title **"Mark this quest complete?"**; Yes / No buttons
-  - [ ] Yes triggers mutation; `isPending` disables both buttons + checkbox
-  - [ ] On success: close confirm; invoke `onCompleteSuccess(rewardPayload)` callback prop — Story 3.3 wires reward modal
-  - [ ] On error: toast with retry (mirror create/edit pattern from `CreateQuestSheet.tsx`)
-  - [ ] Focus trap + Esc dismiss (No)
+- [x] **Task 4: `ConfirmCompleteModal` client component** (AC: #1–#2, #4, #10)
+  - [x] Create `apps/web/src/components/modals/ConfirmCompleteModal.tsx` — `"use client"`
+  - [x] shadcn `Dialog`; title **"Mark this quest complete?"**; Yes / No buttons
+  - [x] Yes triggers mutation; `isPending` disables both buttons + checkbox
+  - [x] On success: close confirm; invoke `onCompleteSuccess(rewardPayload)` callback prop — Story 3.3 wires reward modal
+  - [x] On error: toast with retry (mirror create/edit pattern from `CreateQuestSheet.tsx`)
+  - [x] Focus trap + Esc dismiss (No)
 
-- [ ] **Task 5: Wire `QuestRowActions`** (AC: #1, #4, #6)
-  - [ ] Update `apps/web/src/components/quest-board/QuestRowActions.tsx`:
+- [x] **Task 5: Wire `QuestRowActions`** (AC: #1, #4, #6)
+  - [x] Update `apps/web/src/components/quest-board/QuestRowActions.tsx`:
     - Props: `taskId`, `taskTitle` (add `taskId`)
     - Remove `disabled` stub; enable checkbox
     - Local state: confirm open, `isCompleting`
     - `trpc.tasks.complete.useMutation` with `timezone: Intl.DateTimeFormat().resolvedOptions().timeZone`
     - On success: `utils.tasks.list.invalidate()` + `utils.profile.get.invalidate()`; call parent/onSuccess with payload
-  - [ ] Update `QuestRow.tsx` to pass `task.id`
+  - [x] Update `QuestRow.tsx` to pass `task.id`
 
-- [ ] **Task 6: Integration tests** (AC: #5, #8)
-  - [ ] Create `packages/api/src/__tests__/tasks-complete.test.ts`:
+- [x] **Task 6: Integration tests** (AC: #5, #8)
+  - [x] Create `packages/api/src/__tests__/tasks-complete.test.ts`:
     - unauthenticated → `UNAUTHORIZED`
     - not owner / deleted / already wrong status → `NOT_FOUND`
     - valid complete → task excluded from `tasks.list`; `user_skills` xp increased
     - idempotent re-complete → same `xpAward`, no double XP increment
     - medium quest → focus +1 (if under cap)
     - trivial → focus 0
-  - [ ] Add to root `smoke` script
+  - [x] Add to root `smoke` script
 
-- [ ] **Task 7: Verify** (AC: all)
-  - [ ] `bun run type-check` + `bun run smoke` green
-  - [ ] Manual: checkbox → confirm → Yes → row disappears from list; profile header would refresh on invalidate
+- [x] **Task 7: Verify** (AC: all)
+  - [x] `bun run type-check` + `bun run smoke` green
+  - [x] Manual: checkbox → confirm → Yes → row disappears from list; profile header would refresh on invalidate
+
+### Review Findings
+
+- [x] [Review][Decision] **Idempotent `focusEarned` reconstruction is unreliable** — resolved: added `focus_earned` column (migration 0002), persist on first complete, read on idempotent retry.
+
+- [x] [Review][Decision] **AC4 "row disabled" scope ambiguous** — resolved: bubble `isCompleting` to `QuestRow`, dim row + disable edit trigger during complete.
+
+- [x] [Review][Patch] **Concurrent complete can double-award XP** [`packages/api/src/services/complete-task.ts`] — fixed: task UPDATE uses `.returning()`; throws if 0 rows (transaction rolls back).
+
+- [x] [Review][Patch] **Null `xpAwarded` on idempotent path crashes silently** [`packages/api/src/services/complete-task.ts`] — fixed: explicit null guard → BAD_REQUEST.
+
+- [x] [Review][Patch] **Double-click Yes can fire duplicate mutations** [`ConfirmCompleteModal.tsx`] — fixed: local `confirmFired` latch.
+
+- [x] [Review][Patch] **`Intl` timezone may be undefined on client** [`QuestRowActions.tsx`] — fixed: `?? 'UTC'` fallback.
+
+- [x] [Review][Patch] **`CompleteTaskSchema` does not validate IANA at schema layer** [`complete.ts`] — fixed: `.refine(isValidIanaTimezone)`.
+
+- [x] [Review][Patch] **Missing integration tests** [`tasks-complete.test.ts`] — fixed: unknown id, zero skills, focus-at-cap, hard difficulty.
+
+- [x] [Review][Patch] **No guard when all skill XP splits to zero** [`complete-task.ts`] — fixed: throws BAD_REQUEST before transaction.
+
+- [x] [Review][Defer] **XP split floor drops remainder** [`packages/domain/src/xp-split.ts`] — deferred, pre-existing domain behavior from Story 3.1.
+
+- [x] [Review][Defer] **Idempotent freshness recompute with different timezone** [`complete-task.ts`] — deferred, pre-existing edge case.
 
 ## Dev Notes
 
@@ -236,16 +260,58 @@ apps/web/src/components/quest-board/QuestRow.tsx       # UPDATE (pass taskId)
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude (Cursor Agent)
 
 ### Debug Log References
 
+### Implementation Plan
+
+- Added `CompleteTaskSchema` + `RewardPayload` in validators
+- Implemented `completeTaskForOwner` service with Drizzle transaction, domain math, idempotent retry path
+- Wired `tasks.complete` tRPC mutation with error mapping
+- Built `ConfirmCompleteModal` and enabled checkbox flow in `QuestRowActions`
+- Added 8 integration tests; smoke + type-check green
+
 ### Completion Notes List
+
+- ✅ Confirm modal with Yes/No, in-flight guards on checkbox and buttons
+- ✅ Complete mutation persists XP split, focus earn, idempotency fields in transaction
+- ✅ Idempotent re-complete returns same `xpAward` without double XP
+- ✅ Cache invalidation for `tasks.list` and `profile.get` on success
+- ✅ `onCompleteSuccess` callback passes `RewardPayload` for Story 3.3 handoff
+- ✅ All 109 smoke tests pass; type-check clean (post-review)
+
+### Change Log
+
+- 2026-06-01: Implemented quest confirm-and-complete flow (Story 3.2) — server persistence, idempotency, UI modal, integration tests
+- 2026-06-01: Code review fixes — focus_earned column, race guard, row disable, test coverage, schema IANA validation
 
 ### File List
 
+- packages/validators/src/complete.ts (new)
+- packages/validators/src/index.ts (modified)
+- packages/api/package.json (modified)
+- packages/api/src/services/complete-task.ts (new)
+- packages/api/src/routers/tasks.ts (modified)
+- packages/api/src/index.ts (modified)
+- packages/api/src/__tests__/tasks-complete.test.ts (new)
+- packages/api/src/__tests__/tasks-create.test.ts (modified — migration 0002)
+- packages/api/src/__tests__/tasks-delete.test.ts (modified — migration 0002)
+- packages/api/src/__tests__/tasks-update.test.ts (modified — migration 0002)
+- packages/api/src/__tests__/tasks-list.test.ts (modified — migration 0002)
+- packages/api/src/__tests__/profile-get.test.ts (modified — migration 0002)
+- packages/db/migrations/0002_task_focus_earned.sql (new)
+- packages/db/src/schema/tasks.ts (modified)
+- packages/db/src/__tests__/quest-schema.test.ts (modified)
+- apps/web/src/components/modals/ConfirmCompleteModal.tsx (new)
+- apps/web/src/components/quest-board/QuestRowActions.tsx (modified)
+- apps/web/src/components/quest-board/QuestRow.tsx (modified)
+- apps/web/src/components/quest-board/QuestRowEditTrigger.tsx (modified)
+- package.json (modified — smoke script)
+- bun.lock (modified)
+
 ## Story Completion Status
 
-- Status: **ready-for-dev** — Ultimate context engine analysis completed - comprehensive developer guide created
+- Status: **done** — code review patches applied; 109 smoke tests green
 - Depends on: Story 3.1 (domain engine)
 - Next: Story 3.3 (reward modal consumes `RewardPayload`)

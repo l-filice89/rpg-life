@@ -92,6 +92,7 @@ describe('tasks.create', () => {
     sqlite.exec('PRAGMA foreign_keys = ON;');
     applyMigrationFile(sqlite, '0000_init.sql');
     applyMigrationFile(sqlite, '0001_quest_schema.sql');
+    applyMigrationFile(sqlite, '0002_task_focus_earned.sql');
     testDb = drizzle(sqlite, { schema });
     await seedSkills(testDb as typeof import('@rpg-life/db').db);
   });

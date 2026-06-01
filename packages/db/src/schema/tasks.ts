@@ -16,6 +16,7 @@ export const tasks = sqliteTable(
     completedAt: text('completed_at'),
     xpAwarded: integer('xp_awarded'),
     freshnessMultiplier: real('freshness_multiplier'),
+    focusEarned: integer('focus_earned'),
     createdAt: text('created_at').notNull(),
     modifiedAt: text('modified_at').notNull(),
     deletedAt: text('deleted_at'),

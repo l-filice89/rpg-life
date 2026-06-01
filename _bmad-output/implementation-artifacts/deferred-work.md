@@ -73,3 +73,8 @@
 ## Deferred from: code review of 3-1-progression-domain-engine (2026-06-01)
 
 - `parseLocalDateUtc` accepts invalid calendar dates (e.g. `2026-02-31`) via JS Date.UTC rollover — same class as Stories 2.4/2.5; align when shared date validator lands.
+
+## Deferred from: code review of 3-2-confirm-and-complete-quest (2026-06-01)
+
+- XP split floor drops remainder (25 XP → 12+12 per skill) — pre-existing domain behavior from Story 3.1; intentional floor division in `splitXpAcrossSkills`.
+- Idempotent freshness recompute with different timezone may disagree stored multiplier vs recomputed reason/daysApplied — client always sends same timezone; edge case on manual retry with different tz.

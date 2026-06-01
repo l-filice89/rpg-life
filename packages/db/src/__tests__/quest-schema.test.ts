@@ -44,6 +44,7 @@ function applyMigrationFile(sqlite: Database, fileName: string) {
 function applyMigrations(sqlite: Database) {
   applyMigrationFile(sqlite, '0000_init.sql');
   applyMigrationFile(sqlite, '0001_quest_schema.sql');
+  applyMigrationFile(sqlite, '0002_task_focus_earned.sql');
 }
 
 describe('quest schema migration', () => {
@@ -115,6 +116,7 @@ describe('quest schema migration', () => {
 
     expect(columns).toContain('completed_at');
     expect(columns).toContain('xp_awarded');
+    expect(columns).toContain('focus_earned');
     expect(columns).toContain('freshness_multiplier');
     expect(columns).toContain('deleted_at');
   });
@@ -125,6 +127,6 @@ describe('migration files', () => {
     const sqlFiles = readdirSync(migrationsDir)
       .filter((file) => file.endsWith('.sql') && !file.includes('lazy_epoch'))
       .sort();
-    expect(sqlFiles).toEqual(['0000_init.sql', '0001_quest_schema.sql']);
+    expect(sqlFiles).toEqual(['0000_init.sql', '0001_quest_schema.sql', '0002_task_focus_earned.sql']);
   });
 });

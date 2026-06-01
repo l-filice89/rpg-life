@@ -7,7 +7,7 @@ export function QuestBoardEmptyFirst() {
       <h2 id="quest-board-empty-heading" className="text-display-sm text-foreground">
         No quests yet
       </h2>
-      <p className="mt-3 text-muted-foreground">Plant a quest to chart your path.</p>
+      <p className="mt-3 text-muted-foreground">Start a quest to chart your path.</p>
       <p className="mt-6 text-sm text-muted-foreground">Tap + to create your first quest</p>
     </section>
   );

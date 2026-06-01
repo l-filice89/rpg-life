@@ -9,9 +9,10 @@ import { formatDueDate, isOverdue } from '@/lib/format-due-date';
 
 type QuestRowEditTriggerProps = {
   task: TaskListItem;
+  disabled?: boolean;
 };
 
-export function QuestRowEditTrigger({ task }: QuestRowEditTriggerProps) {
+export function QuestRowEditTrigger({ task, disabled = false }: QuestRowEditTriggerProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const overdue = task.dueDate ? isOverdue(task.dueDate) : false;
   const dueLabel = task.dueDate
@@ -26,6 +27,7 @@ export function QuestRowEditTrigger({ task }: QuestRowEditTriggerProps) {
         type="button"
         className="min-w-0 flex-1 text-left"
         aria-label={`Edit quest: ${task.title}`}
+        disabled={disabled}
         onClick={() => setSheetOpen(true)}
       >
         <RowBody

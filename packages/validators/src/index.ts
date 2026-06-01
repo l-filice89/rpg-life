@@ -13,3 +13,8 @@ export {
   type TaskDeleteInput,
   type TaskUpdateInput,
 } from './task';
+export {
+  CompleteTaskSchema,
+  type CompleteTaskInput,
+  type RewardPayload,
+} from './complete';

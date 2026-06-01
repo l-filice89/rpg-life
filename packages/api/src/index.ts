@@ -12,4 +12,5 @@ export { createContext, type Context } from './context';
 
 export type TaskListItem = inferRouterOutputs<AppRouter>['tasks']['list'][number];
 export type ProfileSummary = inferRouterOutputs<AppRouter>['profile']['get'];
-export type { TaskCreateInput, TaskUpdateInput } from '@rpg-life/validators';
+export type RewardPayload = inferRouterOutputs<AppRouter>['tasks']['complete'];
+export type { CompleteTaskInput, TaskCreateInput, TaskUpdateInput } from '@rpg-life/validators';
