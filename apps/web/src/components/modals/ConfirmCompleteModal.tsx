@@ -18,7 +18,7 @@ type ConfirmCompleteModalProps = {
   taskTitle: string;
   isPending: boolean;
   onConfirm: () => Promise<RewardPayload>;
-  onCompleteSuccess: (payload: RewardPayload) => void;
+  onCompleteSuccess: (payload: RewardPayload) => void | Promise<void>;
 };
 
 export function ConfirmCompleteModal({
@@ -47,7 +47,7 @@ export function ConfirmCompleteModal({
     try {
       const payload = await onConfirm();
       onOpenChange(false);
-      onCompleteSuccess(payload);
+      await Promise.resolve(onCompleteSuccess(payload));
     } catch {
       toast.error('Could not complete quest. Check your connection and try again.');
     } finally {

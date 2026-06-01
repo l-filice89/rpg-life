@@ -78,3 +78,7 @@
 
 - XP split floor drops remainder (25 XP → 12+12 per skill) — pre-existing domain behavior from Story 3.1; intentional floor division in `splitXpAcrossSkills`.
 - Idempotent freshness recompute with different timezone may disagree stored multiplier vs recomputed reason/daysApplied — client always sends same timezone; edge case on manual retry with different tz.
+
+## Deferred from: code review of 3-3-reward-modal-and-hero-level-up-celebration (2026-06-01)
+
+- HeroLevelUpOverlay lacks Radix focus trap / body scroll lock — custom full-screen overlay acceptable for MVP; story ACs don't require escape-to-dismiss.
