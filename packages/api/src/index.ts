@@ -12,3 +12,4 @@ export { createContext, type Context } from './context';
 
 export type TaskListItem = inferRouterOutputs<AppRouter>['tasks']['list'][number];
 export type ProfileSummary = inferRouterOutputs<AppRouter>['profile']['get'];
+export type { TaskCreateInput } from '@rpg-life/validators';

@@ -1,5 +1,5 @@
 import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { SKILL_CATALOG, type SkillCode } from '@rpg-life/validators';
+import { SKILL_CATALOG, type SkillCode, type TaskCreateInput } from '@rpg-life/validators';
 import type { Database } from '../client';
 import { taskSkills } from '../schema/task-skills';
 import { tasks } from '../schema/tasks';
@@ -67,4 +67,44 @@ export async function listOpenTasksByOwner(
     skillCodes: sortSkillCodes(skillsByTaskId.get(row.id) ?? []),
     createdAt: row.createdAt,
   }));
+}
+
+export async function createTaskForOwner(
+  db: Database,
+  ownerId: string,
+  input: TaskCreateInput,
+): Promise<TaskListItem> {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const dueDate = input.dueDate ?? null;
+
+  await db.transaction(async (tx) => {
+    await tx.insert(tasks).values({
+      id,
+      ownerId,
+      title: input.title,
+      difficulty: input.difficulty,
+      dueDate,
+      status: 'open',
+      deletedAt: null,
+      createdAt: now,
+      modifiedAt: now,
+    });
+
+    for (const skillCode of input.skillCodes) {
+      await tx.insert(taskSkills).values({
+        taskId: id,
+        skillCode,
+      });
+    }
+  });
+
+  return {
+    id,
+    title: input.title,
+    difficulty: input.difficulty,
+    dueDate,
+    skillCodes: sortSkillCodes([...input.skillCodes]),
+    createdAt: now,
+  };
 }

@@ -4,3 +4,8 @@ export {
   SkillCodeSchema,
   type SkillCode,
 } from './skill-codes';
+export {
+  TaskCreateSchema,
+  TaskDifficultySchema,
+  type TaskCreateInput,
+} from './task';

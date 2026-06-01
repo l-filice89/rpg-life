@@ -1,4 +1,5 @@
 import type { ProfileSummary, TaskListItem } from '@rpg-life/api';
+import { QuestBoardFab } from './QuestBoardFab';
 import { QuestBoardHeader } from './QuestBoardHeader';
 import { QuestRow } from './QuestRow';
 
@@ -22,6 +23,7 @@ export function QuestBoard({ tasks, profile }: QuestBoardProps) {
           ))}
         </ul>
       )}
+      <QuestBoardFab />
     </div>
   );
 }

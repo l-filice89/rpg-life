@@ -52,3 +52,8 @@
 
 - `dev.ts` / `next.config.ts` dev startup changes exceed story file list — beneficial DX fix discovered during manual QA.
 - Quest Board page fails entirely if either `tasks.list` or `profile.get` throws — matches Story 2.2 RSC fetch pattern; partial failure is Epic 4/error-boundary hardening.
+
+## Deferred from: code review of 2-4-create-quest-via-fab (2026-06-01)
+
+- Invalid `skill_code` FK errors surface as raw DB errors, not `TRPCError` — Zod enum blocks normal clients; same class as Story 2.2 repository cast deferral.
+- Shared in-memory test DB accumulates rows across tests — matches `tasks-list.test.ts` pattern; per-test userIds isolate assertions.
