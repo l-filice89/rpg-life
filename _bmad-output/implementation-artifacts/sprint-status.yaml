@@ -49,7 +49,7 @@ development_status:
   1-4-app-shell-and-sidebar-navigation: done
   1-5-first-run-tutorial: done
   epic-1-retrospective: done
-  epic-2: in-progress
+  epic-2: done
   2-1-tasks-schema-and-skill-catalog-seed: done
   2-2-list-open-quests-on-quest-board: done
   2-3-quest-board-header-and-brand-components: done
@@ -57,7 +57,7 @@ development_status:
   2-5-edit-and-delete-open-quests: done
   2-6-quest-board-filters: done
   2-7-quest-board-empty-state: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
   epic-3: backlog
   3-1-progression-domain-engine: backlog
   3-2-confirm-and-complete-quest: backlog
