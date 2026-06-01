@@ -10,6 +10,9 @@
     "build": "echo 'no build step'",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit",
-    "test": "echo 'no tests yet'"
+    "test": "bun test src"
+  },
+  "dependencies": {
+    "@rpg-life/validators": "workspace:*"
   }
 }

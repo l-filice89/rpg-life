@@ -69,3 +69,7 @@
 - `router.refresh()` while edit sheet open resets form from new `task` prop — rare edge.
 - Invalid calendar dates pass regex-only Zod (e.g. 2026-02-31) — same class as Story 2.4 create.
 - Cancelled tasks get misleading "Completed quests cannot be edited" message — cancelled status not surfaced in MVP UI.
+
+## Deferred from: code review of 3-1-progression-domain-engine (2026-06-01)
+
+- `parseLocalDateUtc` accepts invalid calendar dates (e.g. `2026-02-31`) via JS Date.UTC rollover — same class as Stories 2.4/2.5; align when shared date validator lands.

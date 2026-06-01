@@ -58,13 +58,13 @@ development_status:
   2-6-quest-board-filters: done
   2-7-quest-board-empty-state: done
   epic-2-retrospective: done
-  epic-3: backlog
-  3-1-progression-domain-engine: backlog
-  3-2-confirm-and-complete-quest: backlog
-  3-3-reward-modal-and-hero-level-up-celebration: backlog
-  3-4-my-profile-stats-page: backlog
-  3-5-focus-earn-and-spend-actions: backlog
-  3-6-board-clear-celebratory-empty-state: backlog
+  epic-3: in-progress
+  3-1-progression-domain-engine: done
+  3-2-confirm-and-complete-quest: ready-for-dev
+  3-3-reward-modal-and-hero-level-up-celebration: ready-for-dev
+  3-4-my-profile-stats-page: ready-for-dev
+  3-5-focus-earn-and-spend-actions: ready-for-dev
+  3-6-board-clear-celebratory-empty-state: ready-for-dev
   epic-3-retrospective: optional
   epic-4: backlog
   4-1-playwright-e2e-test-suite: backlog

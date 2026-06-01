@@ -101,6 +101,7 @@
       "name": "@rpg-life/db",
       "version": "0.0.0",
       "dependencies": {
+        "@rpg-life/domain": "workspace:*",
         "@rpg-life/validators": "workspace:*",
         "drizzle-orm": "^0.45.1",
       },
@@ -111,6 +112,9 @@
     "packages/domain": {
       "name": "@rpg-life/domain",
       "version": "0.0.0",
+      "dependencies": {
+        "@rpg-life/validators": "workspace:*",
+      },
     },
     "packages/ui": {
       "name": "@rpg-life/ui",
