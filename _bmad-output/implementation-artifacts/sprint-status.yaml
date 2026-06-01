@@ -52,7 +52,7 @@ development_status:
   epic-2: in-progress
   2-1-tasks-schema-and-skill-catalog-seed: done
   2-2-list-open-quests-on-quest-board: done
-  2-3-quest-board-header-and-brand-components: backlog
+  2-3-quest-board-header-and-brand-components: done
   2-4-create-quest-via-fab: backlog
   2-5-edit-and-delete-open-quests: backlog
   2-6-quest-board-filters: backlog

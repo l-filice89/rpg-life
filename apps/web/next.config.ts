@@ -5,10 +5,15 @@ import path from 'node:path';
 // standalone output. The web Dockerfile passes it as a build arg (defaults to
 // the compose service host) so the proxy targets the api service, not loopback.
 const apiUrl = process.env.API_URL ?? 'http://localhost:3002';
+const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  outputFileTracingRoot: path.join(__dirname, '../../'),
+  ...(isProduction
+    ? {
+        output: 'standalone' as const,
+        outputFileTracingRoot: path.join(__dirname, '../../'),
+      }
+    : {}),
   transpilePackages: ['@rpg-life/api', '@rpg-life/auth', '@rpg-life/ui'],
   async rewrites() {
     return [

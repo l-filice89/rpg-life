@@ -3,7 +3,10 @@ import { createServerTrpcClient } from '@/lib/trpc-server';
 
 export default async function QuestBoardPage() {
   const trpc = await createServerTrpcClient();
-  const tasks = await trpc.tasks.list.query();
+  const [tasks, profile] = await Promise.all([
+    trpc.tasks.list.query(),
+    trpc.profile.get.query(),
+  ]);
 
-  return <QuestBoard tasks={tasks} />;
+  return <QuestBoard tasks={tasks} profile={profile} />;
 }

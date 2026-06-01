@@ -31,3 +31,8 @@ export {
 export { Skeleton } from './components/ui/skeleton';
 export { Toaster } from './components/ui/sonner';
 export { toast } from 'sonner';
+
+export { XpBar } from './components/brand/xp-bar';
+export { FocusPill } from './components/brand/focus-pill';
+export { SkillChip } from './components/brand/skill-chip';
+export { getSkillIcon } from './skill-icons';

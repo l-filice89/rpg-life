@@ -47,3 +47,8 @@
 - Shared in-memory test DB accumulates rows across tests — matches tutorial.test.ts pattern; per-test userIds isolate assertions.
 - Expired session on `tasks.list` shows retry loop instead of sign-in redirect — auth UX hardening.
 - `<h2>` per quest row may clutter heading outline — deferred to Story 2.3 QuestRow a11y pass.
+
+## Deferred from: code review of 2-3-quest-board-header-and-brand-components (2026-06-01)
+
+- `dev.ts` / `next.config.ts` dev startup changes exceed story file list — beneficial DX fix discovered during manual QA.
+- Quest Board page fails entirely if either `tasks.list` or `profile.get` throws — matches Story 2.2 RSC fetch pattern; partial failure is Epic 4/error-boundary hardening.

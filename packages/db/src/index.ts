@@ -11,3 +11,4 @@ export { runSeed } from './seed';
 export { seedSkills } from './seed/skills';
 export { eq, ne, gt, gte, lt, lte, and, or, like, desc, asc, sql, count, sum, isNull, inArray } from 'drizzle-orm';
 export { listOpenTasksByOwner, type TaskListItem } from './repositories/tasks';
+export { getProfileSummary, type ProfileSummary } from './repositories/profile';
