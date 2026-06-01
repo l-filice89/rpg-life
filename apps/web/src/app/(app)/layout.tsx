@@ -1,10 +1,14 @@
 import { AppProviders } from '@/components/providers/app-providers';
 import { AppShell } from '@/components/sidebar/app-shell';
+import { createServerTrpcClient } from '@/lib/trpc-server';
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const trpc = await createServerTrpcClient();
+  const status = await trpc.tutorial.getStatus.query();
+
   return (
     <AppProviders>
-      <AppShell>{children}</AppShell>
+      <AppShell initialTutorialSeen={status.seen}>{children}</AppShell>
     </AppProviders>
   );
 }

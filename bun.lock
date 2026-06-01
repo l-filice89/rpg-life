@@ -79,6 +79,9 @@
         "@rpg-life/db": "workspace:*",
         "@trpc/server": "^11.0.0",
       },
+      "devDependencies": {
+        "drizzle-orm": "^0.45.1",
+      },
     },
     "packages/auth": {
       "name": "@rpg-life/auth",

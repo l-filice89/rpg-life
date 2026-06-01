@@ -26,3 +26,9 @@
 
 - No authenticated sidebar E2E (open hamburger → nav items visible) — story marked optional; Epic 4 session-fixture scope.
 - `apps/web` unit tests (`bun test src/`) not wired into root `smoke` or CI — new in 1.4; Epic 4 CI hardening.
+
+## Deferred from: code review of 1-5-first-run-tutorial (2026-05-29)
+
+- `(app)/layout.tsx` has no error handling when api/tRPC unreachable — authenticated shell throws instead of retry UI; NFR online-only retry deferred to Epic 4/error boundary.
+- No authenticated first-run Tutorial E2E — story defers to Epic 4 session fixture; smoke covers API unit tests only.
+- `apps/web` unit tests still not wired into root `smoke` or CI — carried from Story 1.4.

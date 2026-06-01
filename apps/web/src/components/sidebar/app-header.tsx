@@ -14,7 +14,7 @@ export function AppHeader({ sidebarOpen, onToggleSidebar }: AppHeaderProps) {
 
   return (
     <header className="border-b border-border bg-gradient-to-b from-card to-background px-5 py-5">
-      <div className="mx-auto flex w-full max-w-lg items-center gap-4 md:max-w-lg lg:max-w-2xl">
+      <div className="flex w-full items-center gap-4">
         <button
           type="button"
           onClick={onToggleSidebar}

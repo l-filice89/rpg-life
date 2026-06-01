@@ -1,11 +1,26 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { TutorialSheet } from '@/components/tutorial/tutorial-sheet';
 import { AppHeader } from './app-header';
 import { SidebarOverlay } from './sidebar-overlay';
 
-export function AppShell({ children }: { children: ReactNode }) {
+type AppShellProps = {
+  children: ReactNode;
+  initialTutorialSeen: boolean;
+};
+
+export function AppShell({ children, initialTutorialSeen }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(!initialTutorialSeen);
+  const [tutorialMode, setTutorialMode] = useState<'first-run' | 'replay'>(
+    initialTutorialSeen ? 'replay' : 'first-run',
+  );
+
+  const handleTutorialClick = () => {
+    setTutorialMode('replay');
+    setTutorialOpen(true);
+  };
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
@@ -13,7 +28,16 @@ export function AppShell({ children }: { children: ReactNode }) {
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((open) => !open)}
       />
-      <SidebarOverlay open={sidebarOpen} onOpenChange={setSidebarOpen} />
+      <SidebarOverlay
+        open={sidebarOpen}
+        onOpenChange={setSidebarOpen}
+        onTutorialClick={handleTutorialClick}
+      />
+      <TutorialSheet
+        open={tutorialOpen}
+        onOpenChange={setTutorialOpen}
+        mode={tutorialMode}
+      />
       <main className="mx-auto w-full max-w-lg flex-1 px-5 md:max-w-lg lg:max-w-2xl">{children}</main>
     </div>
   );

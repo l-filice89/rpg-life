@@ -30,15 +30,18 @@ src/
       layout.tsx            # Auth gate layout (star motif)
       sign-in/page.tsx      # Magic link sign-in + post-send state
     (app)/
-      layout.tsx            # AppProviders + AppShell (authenticated)
+      layout.tsx            # AppProviders + AppShell; RSC fetches tutorial.getStatus
       quest-board/page.tsx  # Quest Board placeholder (Epic 2)
       profile/page.tsx      # My Profile placeholder (Epic 3)
   components/
     auth/sign-in-form.tsx   # Client island for Auth B flow
     sidebar/
-      app-shell.tsx         # Shell layout + sidebar state
+      app-shell.tsx         # Shell layout + sidebar + tutorial state
       app-header.tsx        # Hamburger + page title
       sidebar-overlay.tsx   # Left Sheet nav overlay
+    tutorial/
+      tutorial-sheet.tsx    # Bottom Sheet first-run + replay explainer
+      tutorial-content.ts   # Shared five-topic copy
     providers/app-providers.tsx  # tRPC + QueryClient (used in (app)/layout)
   lib/
     page-title.ts           # Route → header title helper
@@ -55,6 +58,13 @@ src/
 - Authenticated users on `/sign-in` redirect to `/quest-board`
 - Session cookie is HttpOnly on the web origin; `/api/auth/*` and `/api/trpc/*` proxy to the api service
 - Set `NEXT_PUBLIC_BETTER_AUTH_URL` to match `BETTER_AUTH_URL` (default `http://localhost:3000`)
+
+## Tutorial Flow
+
+- `(app)/layout.tsx` fetches `tutorial.getStatus` server-side and passes `initialTutorialSeen` to `AppShell`
+- First visit (`tutorial_seen_at` null): bottom `TutorialSheet` auto-opens before Quest Board interaction
+- Dismiss (first-run): calls `tutorial.markSeen` → writes `user_progress.tutorial_seen_at`
+- Subsequent visits: no auto-open; sidebar **Tutorial** replays same content without calling `markSeen`
 
 ## E2E Tests
 

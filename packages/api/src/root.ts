@@ -1,30 +1,14 @@
-import { initTRPC, TRPCError } from '@trpc/server';
-import type { Context } from './context';
+import { tutorialRouter } from './routers/tutorial';
+import { protectedProcedure, publicProcedure, router } from './trpc';
 
-const t = initTRPC.context<Context>().create();
-
-export const router = t.router;
-export const publicProcedure = t.procedure;
-
-const isAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.user) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
-  }
-  return next({
-    ctx: {
-      ...ctx,
-      user: ctx.user,
-    },
-  });
-});
-
-export const protectedProcedure = t.procedure.use(isAuthed);
+export { protectedProcedure, publicProcedure, router } from './trpc';
 
 export const appRouter = router({
   health: publicProcedure.query(() => ({ status: 'ok' as const })),
   profile: router({
     ping: protectedProcedure.query(({ ctx }) => ({ userId: ctx.user.id })),
   }),
+  tutorial: tutorialRouter,
 });
 
 export type AppRouter = typeof appRouter;
