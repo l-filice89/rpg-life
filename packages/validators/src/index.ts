@@ -1,2 +1,6 @@
-/** Shared Zod schemas are added in feature stories. */
-export {};
+export {
+  SKILL_CODES,
+  SKILL_CATALOG,
+  SkillCodeSchema,
+  type SkillCode,
+} from './skill-codes';

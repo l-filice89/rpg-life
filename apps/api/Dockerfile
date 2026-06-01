@@ -15,7 +15,7 @@ RUN bun install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
-RUN bun run --filter @rpg-life/server build
+RUN echo 'no build step — runner executes apps/api/src/start.ts directly'
 
 FROM base AS runner
 WORKDIR /app
@@ -23,7 +23,10 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/apps/api ./apps/api
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/bun.lock ./bun.lock
+COPY --from=build /app/bunfig.toml ./bunfig.toml
 COPY --from=build /app/tsconfig.base.json ./tsconfig.base.json
 ENV PORT=3002
 EXPOSE 3002
-CMD ["bun", "run", "apps/api/src/start.ts"]
+WORKDIR /app
+CMD ["bun", "run", "--filter", "@rpg-life/server", "start"]

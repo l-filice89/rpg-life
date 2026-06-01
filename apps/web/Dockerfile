@@ -20,7 +20,9 @@ COPY . .
 ARG API_URL=http://api:3002
 ENV API_URL=$API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN bun run --filter @rpg-life/web build
+WORKDIR /app/apps/web
+RUN bun run build
+WORKDIR /app
 
 FROM base AS runner
 WORKDIR /app
@@ -29,6 +31,5 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
-COPY --from=build /app/apps/web/public ./apps/web/public
 EXPOSE 3000
 CMD ["bun", "apps/web/server.js"]

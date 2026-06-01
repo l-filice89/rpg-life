@@ -32,3 +32,8 @@
 - `(app)/layout.tsx` has no error handling when api/tRPC unreachable — authenticated shell throws instead of retry UI; NFR online-only retry deferred to Epic 4/error boundary.
 - No authenticated first-run Tutorial E2E — story defers to Epic 4 session fixture; smoke covers API unit tests only.
 - `apps/web` unit tests still not wired into root `smoke` or CI — carried from Story 1.4.
+
+## Deferred from: code review of 2-1-tasks-schema-and-skill-catalog-seed (2026-06-01)
+
+- `tasks.owner_id ON DELETE CASCADE` hard-deletes all tasks if user row is removed — MVP soft-delete is `deleted_at` only; user-delete cascade acceptable until account deletion is modeled.
+- Docker/README changes exceed pure schema scope but satisfy Task 6 verification — intentional supporting work for compose smoke.

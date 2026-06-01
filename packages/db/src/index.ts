@@ -1,5 +1,11 @@
 export { db } from './client';
 export type { Database } from './client';
+export { runMigrations } from './migrate';
 export * from './schema/auth';
 export * from './schema/user-progress';
+export * from './schema/tasks';
+export * from './schema/skills';
+export * from './schema/task-skills';
+export * from './schema/user-skills';
+export { runSeed } from './seed';
 export { eq, ne, gt, gte, lt, lte, and, or, like, desc, asc, sql, count, sum } from 'drizzle-orm';

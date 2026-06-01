@@ -20,6 +20,7 @@
     "db:studio": "bun --env-file=../../.env --env-file=../../.env.local x drizzle-kit studio"
   },
   "dependencies": {
+    "@rpg-life/validators": "workspace:*",
     "drizzle-orm": "^0.45.1"
   },
   "devDependencies": {

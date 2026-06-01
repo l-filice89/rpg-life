@@ -1,7 +1,14 @@
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
-  schema: ['./src/schema/auth.ts', './src/schema/user-progress.ts'],
+  schema: [
+    './src/schema/auth.ts',
+    './src/schema/user-progress.ts',
+    './src/schema/tasks.ts',
+    './src/schema/skills.ts',
+    './src/schema/task-skills.ts',
+    './src/schema/user-skills.ts',
+  ],
   out: './migrations',
   dialect: 'sqlite',
   dbCredentials: {

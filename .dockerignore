@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+.git
+data
+.turbo
+_bmad-output
+*.md
+!README.md
+.env
+.env.*
+!.env.example

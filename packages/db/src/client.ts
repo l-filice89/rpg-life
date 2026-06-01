@@ -3,9 +3,20 @@ import { dirname } from 'node:path';
 import { Database as SqliteDatabase } from 'bun:sqlite';
 import { drizzle } from 'drizzle-orm/bun-sqlite';
 import * as authSchema from './schema/auth';
+import * as skillsSchema from './schema/skills';
+import * as taskSkillsSchema from './schema/task-skills';
+import * as tasksSchema from './schema/tasks';
 import * as userProgressSchema from './schema/user-progress';
+import * as userSkillsSchema from './schema/user-skills';
 
-const schema = { ...authSchema, ...userProgressSchema };
+const schema = {
+  ...authSchema,
+  ...userProgressSchema,
+  ...tasksSchema,
+  ...skillsSchema,
+  ...taskSkillsSchema,
+  ...userSkillsSchema,
+};
 
 function resolveDatabasePath(databaseUrl: string): string {
   if (databaseUrl.startsWith('file:')) {

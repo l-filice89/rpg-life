@@ -14,6 +14,7 @@ cp .env.example .env.local
 # Edit .env.local — set BETTER_AUTH_SECRET (32+ chars) and Resend keys
 bun install
 bun db:migrate
+bun db:seed   # optional CLI; api also seeds on startup
 ```
 
 ## Local development
@@ -30,11 +31,11 @@ Next.js rewrites proxy `/api/auth/*` and `/api/trpc/*` to the API service for sa
 ## Docker
 
 ```bash
-cp .env.example .env
-docker compose up --build
+cp .env.example .env.local   # or .env — compose reads .env by default
+docker compose --env-file .env.local up --build
 ```
 
-SQLite persists in `./data/rpg-life.db`.
+SQLite persists in `./data/rpg-life.db`. Web build runs from `apps/web` so the monorepo-hoisted `next` binary resolves correctly.
 
 ## Smoke verification
 
@@ -49,7 +50,7 @@ curl http://localhost:3002/health
 ```
 apps/web     Next.js 15 App Router
 apps/api     Bun + Hono + tRPC + better-auth
-packages/db  Drizzle + SQLite migrations
+packages/db  Drizzle + SQLite migrations; skills catalog seeded on api startup
 packages/api tRPC router definitions
 packages/auth better-auth + Resend magic link
 packages/domain | validators | ui  scaffold shells for later stories
