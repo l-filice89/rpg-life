@@ -4,11 +4,15 @@ import {
   HeartPulse,
   LayoutList,
   Shield,
+  Sparkles,
   Target,
   Users,
   type LucideIcon,
 } from 'lucide-react';
 import { SKILL_CATALOG, type SkillCode } from '@rpg-life/validators';
+
+/** Neutral fallback icon for an unknown or missing skill icon key. */
+export const FallbackSkillIcon: LucideIcon = Sparkles;
 
 const ICON_BY_KEY: Record<string, LucideIcon> = {
   Target,
@@ -30,4 +34,16 @@ export function getSkillIcon(skillCode: SkillCode): LucideIcon {
     throw new Error(`Unknown skill code: ${skillCode}`);
   }
   return icon;
+}
+
+/**
+ * Resolve a Lucide icon from a DB-provided icon key.
+ * Returns undefined for null or unrecognized keys so callers can fall back
+ * to a default icon instead of throwing.
+ */
+export function getIconByKey(iconKey: string | null): LucideIcon | undefined {
+  if (!iconKey) {
+    return undefined;
+  }
+  return ICON_BY_KEY[iconKey];
 }

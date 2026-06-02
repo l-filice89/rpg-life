@@ -82,3 +82,7 @@
 ## Deferred from: code review of 3-3-reward-modal-and-hero-level-up-celebration (2026-06-01)
 
 - HeroLevelUpOverlay lacks Radix focus trap / body scroll lock — custom full-screen overlay acceptable for MVP; story ACs don't require escape-to-dismiss.
+
+## Deferred from: code review of 3-4-my-profile-stats-page (2026-06-02)
+
+- `getSkillIcon` hard-throws on a skill code absent from `SKILL_CATALOG` (`packages/ui/src/skill-icons.ts:29`), which would crash the Profile RSC render. Not triggerable today — the `skills` table is seeded from `SKILL_CATALOG` (single source of truth), so DB codes always match. Revisit if skills become dynamic / DB-driven, or add a fallback icon if code-based resolution is kept long-term.

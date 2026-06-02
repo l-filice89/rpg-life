@@ -6,11 +6,13 @@ const appRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = path.join(appRoot, '../..');
 const port = process.env.PORT_WEB ?? '3000';
 
+// Resolve the Next.js JS entrypoint directly from the package — avoids
+// platform-specific .bin wrappers (.exe on Windows, symlinks on Unix).
 const nextCandidates = [
-  path.join(repoRoot, 'node_modules', '.bin', 'next'),
-  path.join(appRoot, 'node_modules', '.bin', 'next'),
+  path.join(repoRoot, 'node_modules', 'next', 'dist', 'bin', 'next'),
+  path.join(appRoot, 'node_modules', 'next', 'dist', 'bin', 'next'),
 ];
-const nextBin = nextCandidates.find((candidate) => existsSync(candidate));
+const nextBin = nextCandidates.find((c) => existsSync(c));
 
 if (!nextBin) {
   console.error('Could not find next binary. Run `bun install` from the repo root.');

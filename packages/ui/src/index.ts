@@ -35,4 +35,4 @@ export { toast } from 'sonner';
 export { XpBar } from './components/brand/xp-bar';
 export { FocusPill } from './components/brand/focus-pill';
 export { SkillChip } from './components/brand/skill-chip';
-export { getSkillIcon } from './skill-icons';
+export { getSkillIcon, getIconByKey, FallbackSkillIcon } from './skill-icons';

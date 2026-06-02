@@ -96,7 +96,7 @@ describe('profile.get', () => {
       name: 'Ben',
     });
 
-    await expect(caller.profile.get()).resolves.toEqual({
+    await expect(caller.profile.get()).resolves.toMatchObject({
       heroLevel: 0,
       heroXpProgress: 0,
       focusBalance: 0,
@@ -124,7 +124,7 @@ describe('profile.get', () => {
       name: 'Ben',
     });
 
-    await expect(caller.profile.get()).resolves.toEqual({
+    await expect(caller.profile.get()).resolves.toMatchObject({
       heroLevel: 4,
       heroXpProgress: 0,
       focusBalance: 2,
@@ -151,5 +151,66 @@ describe('profile.get', () => {
     expect(result.heroLevel).toBe(4);
     expect(result.heroXpProgress).toBeCloseTo(50 / 450, 5);
     expect(result.focusCap).toBe(4);
+  });
+
+  test('returns 7 skills all at xp 0 for new user', async () => {
+    const userId = crypto.randomUUID();
+    await seedUser(testDb, userId);
+
+    const caller = createCaller(testDb, {
+      id: userId,
+      email: `ben-${userId}@example.com`,
+      name: 'Ben',
+    });
+
+    const result = await caller.profile.get();
+    expect(result.skills).toHaveLength(7);
+    for (const skill of result.skills) {
+      expect(skill.xp).toBe(0);
+      expect(skill.level).toBe(0);
+      expect(skill.xpProgress).toBe(0);
+    }
+  });
+
+  test('skills ordered by sort_order', async () => {
+    const userId = crypto.randomUUID();
+    await seedUser(testDb, userId);
+
+    const caller = createCaller(testDb, {
+      id: userId,
+      email: `ben-${userId}@example.com`,
+      name: 'Ben',
+    });
+
+    const result = await caller.profile.get();
+    expect(result.skills.map((s) => s.code)).toEqual([
+      'concentration',
+      'vitality',
+      'lore',
+      'presence',
+      'order',
+      'resolve',
+      'craft',
+    ]);
+  });
+
+  test('trained skill has non-zero xp; untrained skills remain zero', async () => {
+    const userId = crypto.randomUUID();
+    await seedUser(testDb, userId);
+    await testDb.insert(userSkills).values({ userId, skillCode: 'lore', xp: 50 });
+
+    const caller = createCaller(testDb, {
+      id: userId,
+      email: `ben-${userId}@example.com`,
+      name: 'Ben',
+    });
+
+    const result = await caller.profile.get();
+    const lore = result.skills.find((s) => s.code === 'lore')!;
+    const others = result.skills.filter((s) => s.code !== 'lore');
+    expect(lore.xp).toBe(50);
+    expect(lore.level).toBe(1); // floor(sqrt(50/25)) = floor(1.414) = 1
+    expect(lore.xpProgress).toBeCloseTo(25 / 75, 5); // (50-25)/(100-25)
+    expect(others.every((s) => s.xp === 0 && s.level === 0)).toBe(true);
   });
 });

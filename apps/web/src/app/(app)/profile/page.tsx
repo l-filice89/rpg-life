@@ -1,8 +1,8 @@
-export default function ProfilePage() {
-  return (
-    <div className="py-6">
-      <h2 className="text-display-sm text-foreground">My Profile</h2>
-      <p className="mt-2 text-muted-foreground">Hero stats land in Epic 3.</p>
-    </div>
-  );
+import { ProfileStats } from '@/components/profile/ProfileStats';
+import { createServerTrpcClient } from '@/lib/trpc-server';
+
+export default async function ProfilePage() {
+  const trpc = await createServerTrpcClient();
+  const profile = await trpc.profile.get.query();
+  return <ProfileStats profile={profile} />;
 }
