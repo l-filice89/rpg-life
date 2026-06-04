@@ -4,7 +4,7 @@ baseline_commit: c664fe0
 
 # Story 4.5: README and AI Integration Log
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -24,9 +24,9 @@ So that the project is onboarding-friendly and agent-assisted decisions are trac
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Expand root `README.md`** (AC: #1)
-  - [ ] Read current `README.md` — it has: Prerequisites, Setup, Local development, Docker, Smoke verification, Project structure
-  - [ ] Expand with the following sections:
+- [x] **Task 1: Expand root `README.md`** (AC: #1)
+  - [x] Read current `README.md` — it has: Prerequisites, Setup, Local development, Docker, Smoke verification, Project structure
+  - [x] Expand with the following sections:
     - **Prerequisites** — Docker Desktop/Engine (for compose), Resend account (required even in dev), Bun 1.3+
     - **Environment Variables** — table of all vars with descriptions and required/optional flag (reference `.env.example`)
     - **Local development** — expand with explicit multi-step: `cp .env.example .env.local` → fill vars → `bun install` → `bun db:migrate` → `bun db:seed` → `bun dev`
@@ -35,11 +35,11 @@ So that the project is onboarding-friendly and agent-assisted decisions are trac
     - **Smoke verification** — document `scripts/smoke-docker.sh` (from Story 4.4) and manual curl checks
     - **Project structure** — expand to include all packages with brief descriptions
     - **Architecture decisions** — brief note pointing to `_bmad-output/` planning artifacts
-  - [ ] Keep README concise — use tables and bullet points; do not turn into a book
+  - [x] Keep README concise — use tables and bullet points; do not turn into a book
 
-- [ ] **Task 2: Verify/update `.env.example`** (AC: #3)
-  - [ ] Read current `.env.example`
-  - [ ] Required vars (all 7 from architecture):
+- [x] **Task 2: Verify/update `.env.example`** (AC: #3)
+  - [x] Read current `.env.example`
+  - [x] Required vars (all 7 from architecture):
     ```
     DATABASE_URL=file:/data/rpg-life.db
     BETTER_AUTH_SECRET=change-me-to-a-32-plus-character-secret
@@ -49,17 +49,17 @@ So that the project is onboarding-friendly and agent-assisted decisions are trac
     API_URL=http://localhost:3002
     WEB_URL=http://localhost:3000
     ```
-  - [ ] Each var should have a comment explaining its purpose and where to get it
-  - [ ] Add `PORT` and `PORT_WEB` if docker-compose uses them and they're not in example
+  - [x] Each var should have a comment explaining its purpose and where to get it
+  - [x] Add `PORT` and `PORT_WEB` if docker-compose uses them and they're not in example
 
-- [ ] **Task 3: Create `docs/ai-integration-log.md`** (AC: #2)
-  - [ ] Create `docs/ai-integration-log.md` with the structure below
-  - [ ] Populate with key decisions made during AI-assisted development across all 4 epics
-  - [ ] Format: chronological decision log with date, epic/story context, decision made, rationale, outcome
-  - [ ] Pull decisions from: story dev notes, epic retrospectives, architecture decisions
+- [x] **Task 3: Create `docs/ai-integration-log.md`** (AC: #2)
+  - [x] Create `docs/ai-integration-log.md` with the structure below
+  - [x] Populate with key decisions made during AI-assisted development across all 4 epics
+  - [x] Format: chronological decision log with date, epic/story context, decision made, rationale, outcome
+  - [x] Pull decisions from: story dev notes, epic retrospectives, architecture decisions
 
-- [ ] **Task 4: Update project structure in README** (AC: #1)
-  - [ ] Update the "Project structure" section to reflect actual current state:
+- [x] **Task 4: Update project structure in README** (AC: #1)
+  - [x] Update the "Project structure" section to reflect actual current state:
     ```
     apps/web        Next.js 15 App Router — RSC-first frontend
     apps/api        Bun + Hono + tRPC + better-auth — API server
@@ -75,11 +75,21 @@ So that the project is onboarding-friendly and agent-assisted decisions are trac
       success_criteria.md     Ship gate criteria
     ```
 
-- [ ] **Task 5: Final review pass** (AC: #1–#3)
-  - [ ] Read README end-to-end as a new developer — does it answer: "How do I run this?" and "What is this?"
-  - [ ] Confirm `.env.example` has no real secrets
-  - [ ] Confirm `docs/ai-integration-log.md` is substantive (not a stub)
-  - [ ] Run `bun run type-check` — must be green
+- [x] **Task 5: Final review pass** (AC: #1–#3)
+  - [x] Read README end-to-end as a new developer — does it answer: "How do I run this?" and "What is this?"
+  - [x] Confirm `.env.example` has no real secrets
+  - [x] Confirm `docs/ai-integration-log.md` is substantive (not a stub)
+  - [x] Run `bun run type-check` — must be green
+
+### Review Findings
+
+- [x] [Review][Patch] `docker compose down -v` misleadingly claims to wipe bind-mount data — bind mounts (`./data:/data`) are not removed by `-v`; only named volumes are. Fix README note to clarify; add `rm -rf ./data/rpg-life.db` as the explicit wipe command. [`README.md` — Docker / Notes section]
+- [x] [Review][Patch] `PORT` env var comment claims docker-compose reads it but compose hardcodes `PORT: 3002` directly — changing `PORT` in `.env` has no effect on the container. Fix `.env.example` comment to say "used by `start.ts` fallback and local dev scripts". [`.env.example` — Ports section]
+- [x] [Review][Patch] `bun run smoke` in Testing section not labeled — runs unit/integration tests (not docker smoke); a new developer may confuse it with the docker smoke script. Add "(unit + integration)" annotation inline. [`README.md` — Testing section]
+- [x] [Review][Patch] Manual smoke check uses `rg` (ripgrep) which is not universally available — replace `rg -i "location|http/"` with `grep -i "location\|HTTP/"` for portability. [`README.md` — Smoke Verification section]
+- [x] [Review][Patch] `NEXT_PUBLIC_BETTER_AUTH_URL` marked Required in env table but `apps/web/src/lib/env.ts` declares it `optional()` — change Required column to "No / Optional". [`README.md` — Environment Variables table]
+- [x] [Review][Patch] `NODE_ENV=test` enables the test-session auth bypass endpoint (`POST /api/auth/test-session`) with no warning — add a security comment to the `NODE_ENV` section in `.env.example`. [`.env.example` — Runtime mode section]
+- [x] [Review][Patch] `PORT_API` comment says "used by root dev orchestration script" but `apps/api/src/lib/env.ts` also validates and consumes it as primary port binding fallback — update comment to reflect both consumers. [`.env.example` — Ports section]
 
 ## Dev Notes
 
@@ -233,18 +243,33 @@ docs/
 
 ### Agent Model Used
 
+Codex 5.3
+
 ### Debug Log References
+
+- `bun run type-check` -> pass
 
 ### Completion Notes List
 
+- Expanded root `README.md` with prerequisite, environment, local dev, testing, docker, smoke verification, project structure, and architecture decision sections.
+- Updated `.env.example` comments and ensured architecture-required env vars are present, with docker/local notes and explicit `PORT`/`PORT_WEB`.
+- Added `docs/ai-integration-log.md` with chronological AI-assisted decisions across Epics 1–4, including rationale and outcomes.
+
 ### File List
+
+- README.md
+- .env.example
+- docs/ai-integration-log.md
+- _bmad-output/implementation-artifacts/4-5-readme-and-ai-integration-log.md
+- _bmad-output/implementation-artifacts/sprint-status.yaml
 
 ### Change Log
 
 - 2026-06-04: Story 4.5 — README and AI integration log context created
+- 2026-06-04: Story 4.5 implemented — README expanded, env template aligned, AI integration log authored.
 
 ## Story Completion Status
 
-- Status: **ready-for-dev**
+- Status: **done**
 - Depends on: Epic 1–3 complete, Story 4.4 (smoke-docker.sh must exist to reference in README)
-- Next: Epic 4 retrospective after all 5 stories are done
+- Next: Epic 4 retrospective
