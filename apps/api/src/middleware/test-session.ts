@@ -12,6 +12,24 @@ import {
 } from '@rpg-life/db';
 import { logger } from '../lib/logger';
 
+/**
+ * Signs a cookie value using HMAC-SHA256, producing the same format as
+ * Hono's serializeSigned: encodeURIComponent(`${value}.${base64Signature}`).
+ * better-auth uses Hono's signed-cookie helpers, so we must match exactly.
+ */
+async function signCookieValue(value: string, secret: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
+  const base64Sig = btoa(String.fromCharCode(...new Uint8Array(sig)));
+  return encodeURIComponent(`${value}.${base64Sig}`);
+}
+
 type TestSessionBody = {
   email?: string;
   focusBalance?: number;
@@ -167,9 +185,11 @@ export async function testSessionHandler(c: Context): Promise<Response> {
   logger.info({ userId, sessionId }, 'test-session: session created');
 
   const maxAge = 60 * 60 * 24 * 7;
+  const secret = process.env.BETTER_AUTH_SECRET ?? '';
+  const signedToken = await signCookieValue(token, secret);
   c.header(
     'Set-Cookie',
-    `better-auth.session_token=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}`,
+    `better-auth.session_token=${signedToken}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}`,
   );
 
   return c.json({ userId });
