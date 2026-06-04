@@ -19,6 +19,55 @@ bun run test:e2e     # Run Playwright E2E tests
 bun run test:e2e:ui  # Playwright interactive UI
 ```
 
+## Docker Compose Workflow
+
+### Prerequisites
+
+- Docker Desktop (macOS/Windows) or Docker Engine + Docker Compose plugin (Linux)
+- A configured root `.env` file (copy from `.env.example`)
+- Run these Docker commands from the monorepo root (`rpg-life/`)
+
+### Environment setup
+
+```bash
+cp .env.example .env
+# Required updates:
+# - BETTER_AUTH_SECRET (32+ characters)
+# - RESEND_API_KEY
+# - EMAIL_FROM
+```
+
+### Start services
+
+```bash
+docker compose up --build
+```
+
+- Web: `http://localhost:3000`
+- API: `http://localhost:3002`
+- SQLite data: `./data/rpg-life.db` (persisted via `./data:/data`)
+
+### Smoke verification
+
+```bash
+bash scripts/smoke-docker.sh
+```
+
+Manual checks:
+
+```bash
+curl http://localhost:3002/health
+curl http://localhost:3000
+curl http://localhost:3000/api/trpc/health
+```
+
+### Stop services
+
+```bash
+docker compose down     # stop containers, keep database in ./data
+rm -f ./data/rpg-life.db  # optional: wipe persisted sqlite data
+```
+
 ## Structure
 
 ```
