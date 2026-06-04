@@ -22,13 +22,13 @@ export default defineConfig({
     {
       command: 'bun turbo dev --filter=@rpg-life/api',
       port: 3002,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       cwd: '../../',
     },
     {
       command: 'bun turbo dev --filter=@rpg-life/web',
       port: 3000,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       cwd: '../../',
     },
   ],
