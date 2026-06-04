@@ -30,6 +30,18 @@ async function signCookieValue(value: string, secret: string): Promise<string> {
   return encodeURIComponent(`${value}.${base64Sig}`);
 }
 
+/**
+ * Extracts the raw session token from a signed cookie value. better-auth stores
+ * the cookie as encodeURIComponent(`${token}.${signature}`); the raw token (a
+ * UUID with no dots) is everything before the final dot once URL-decoded. Falls
+ * back to the input unchanged for unsigned values.
+ */
+function extractRawSessionToken(cookieValue: string): string {
+  const decoded = decodeURIComponent(cookieValue);
+  const sigIdx = decoded.lastIndexOf('.');
+  return sigIdx > 0 ? decoded.slice(0, sigIdx) : decoded;
+}
+
 type TestSessionBody = {
   email?: string;
   focusBalance?: number;
@@ -57,10 +69,11 @@ function getCookieValue(header: string | undefined, key: string): string | undef
 
 async function resolveSessionUser(c: Context): Promise<SessionUser | null> {
   const cookieHeader = c.req.header('cookie') ?? c.req.header('Cookie');
-  const token = getCookieValue(cookieHeader, 'better-auth.session_token');
-  if (!token) {
+  const rawCookieValue = getCookieValue(cookieHeader, 'better-auth.session_token');
+  if (!rawCookieValue) {
     return null;
   }
+  const token = extractRawSessionToken(rawCookieValue);
 
   const [sessionRow] = await db
     .select({ userId: sessionTable.userId, expiresAt: sessionTable.expiresAt })
