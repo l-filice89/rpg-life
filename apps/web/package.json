@@ -9,6 +9,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "bun test src/",
+    "e2e": "playwright test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

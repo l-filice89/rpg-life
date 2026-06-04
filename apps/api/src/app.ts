@@ -7,6 +7,7 @@ import { auth } from '@rpg-life/auth/server';
 import { appRouter, createContext } from '@rpg-life/api';
 import { logger } from './lib/logger';
 import { requestLogger } from './middleware/logger';
+import { testSeedHandler, testSessionHandler } from './middleware/test-session';
 
 const app = new Hono();
 
@@ -31,6 +32,11 @@ app.use(
     credentials: true,
   }),
 );
+
+// Test-only endpoints — registered BEFORE the auth wildcard so Hono matches
+// these specific routes first. Each handler enforces NODE_ENV=test internally.
+app.post('/api/auth/test-session', testSessionHandler);
+app.post('/api/auth/test-seed', testSeedHandler);
 
 app.on(['POST', 'GET'], '/api/auth/**', (c) => auth.handler(c.req.raw));
 
