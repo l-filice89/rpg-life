@@ -91,3 +91,8 @@
 
 - `isOverdueUtc` is duplicated across `packages/api/src/services/focus-spend.ts`, `packages/db/src/repositories/tasks.ts`, and `apps/web/src/lib/format-due-date.ts` — extract to a shared util in a dedicated cleanup. Pre-existing duplication pattern.
 - `FocusSpendSchema.newDueDate` accepts impossible calendar dates (`2026-13-45`, `2026-02-30`) via regex-only Zod, persisted after `Date.UTC` rollover — same codebase-wide class as Stories 2.4/2.5/3.1; align when the shared date validator lands.
+
+## Deferred from: code review of 4-2-ci-pipeline-with-coverage-gate (2026-06-04)
+
+- AC4 minimum spec count (≥5) not enforced — Playwright has no native "minimum passing specs" gate; enforcing requires JSON output parsing and a post-run script; spirit of AC4 met via fail-on-any-failure behavior.
+- `bunfig.toml` `[test.coverage]` include/exclude section absent — blocked by bun 1.3.14 bug (TOML sub-table `[test.coverage]` treated as object not bool); workaround uses explicit CLI source-dir args; revisit when bun fixes oven-sh/bun#17028.

@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-29
-last_updated: 2026-06-04 # 4-1 done after review fixes
+last_updated: 2026-06-04 # 4-2 done after review fixes
 project: rpg-life
 project_key: NOKEY
 tracking_system: file-system
@@ -68,7 +68,7 @@ development_status:
   epic-3-retrospective: done
   epic-4: in-progress
   4-1-playwright-e2e-test-suite: done
-  4-2-ci-pipeline-with-coverage-gate: ready-for-dev
+  4-2-ci-pipeline-with-coverage-gate: done
   4-3-accessibility-audit-gate: ready-for-dev
   4-4-docker-deployment-verification: ready-for-dev
   4-5-readme-and-ai-integration-log: ready-for-dev

@@ -5,3 +5,8 @@ exact = true
 [test]
 # Coverage output directory (per-workspace, collected by Turbo)
 coverageDir = "coverage"
+# NOTE: coverageThreshold is intentionally omitted here.
+# Bun 1.3.x applies the threshold per-file rather than globally (oven-sh/bun#17028),
+# which causes false CI failures on utility files (seed.ts, migrate.ts) that have
+# low function coverage. The 70% threshold is enforced in CI via output parsing instead.
+coverageIgnoreSourcemaps = true
