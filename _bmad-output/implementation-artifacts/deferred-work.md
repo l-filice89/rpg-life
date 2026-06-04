@@ -86,3 +86,8 @@
 ## Deferred from: code review of 3-4-my-profile-stats-page (2026-06-02)
 
 - `getSkillIcon` hard-throws on a skill code absent from `SKILL_CATALOG` (`packages/ui/src/skill-icons.ts:29`), which would crash the Profile RSC render. Not triggerable today — the `skills` table is seeded from `SKILL_CATALOG` (single source of truth), so DB codes always match. Revisit if skills become dynamic / DB-driven, or add a fallback icon if code-based resolution is kept long-term.
+
+## Deferred from: code review of 3-5-focus-earn-and-spend-actions (2026-06-04)
+
+- `isOverdueUtc` is duplicated across `packages/api/src/services/focus-spend.ts`, `packages/db/src/repositories/tasks.ts`, and `apps/web/src/lib/format-due-date.ts` — extract to a shared util in a dedicated cleanup. Pre-existing duplication pattern.
+- `FocusSpendSchema.newDueDate` accepts impossible calendar dates (`2026-13-45`, `2026-02-30`) via regex-only Zod, persisted after `Date.UTC` rollover — same codebase-wide class as Stories 2.4/2.5/3.1; align when the shared date validator lands.

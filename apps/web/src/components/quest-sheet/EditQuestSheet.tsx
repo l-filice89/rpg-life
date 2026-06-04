@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { TaskListItem } from '@rpg-life/api';
-import { TaskUpdateSchema, type SkillCode } from '@rpg-life/validators';
+import { TaskUpdateSchema, type SkillCode, type FocusSpendType } from '@rpg-life/validators';
 import {
   Button,
   Dialog,
@@ -23,6 +23,7 @@ import { trpc } from '@/components/providers/app-providers';
 import { QuestFormFields, type DifficultyValue } from '@/components/quest-sheet/QuestFormFields';
 import { useSheetSide } from '@/components/quest-sheet/use-sheet-side';
 import { isOverdue } from '@/lib/format-due-date';
+import { FocusSpendPrompt } from '@/components/modals/FocusSpendPrompt';
 
 type EditQuestSheetProps = {
   task: TaskListItem;
@@ -39,22 +40,22 @@ function taskToFormState(task: TaskListItem) {
   };
 }
 
-function isOverdueForDelete(
+function detectFocusSpendType(
   task: TaskListItem,
   dueDate: string,
-  originallyUndated: boolean,
-): boolean {
-  const dbOverdue = task.dueDate ? isOverdue(task.dueDate) : false;
-  if (dbOverdue) {
-    return true;
-  }
-
-  if (originallyUndated) {
-    return false;
-  }
-
+): FocusSpendType | null {
+  const originallyUndated = task.dueDate === null;
   const formDueDate = dueDate || null;
-  return formDueDate ? isOverdue(formDueDate) : false;
+
+  if (originallyUndated && formDueDate !== null) {
+    return 'add_due_date';
+  }
+
+  if (task.dueDate && isOverdue(task.dueDate) && formDueDate !== task.dueDate) {
+    return 'reschedule_overdue';
+  }
+
+  return null;
 }
 
 export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps) {
@@ -69,8 +70,13 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
   const [dueDate, setDueDate] = useState(task.dueDate ?? '');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  // Focus spend state
+  const [focusPromptOpen, setFocusPromptOpen] = useState(false);
+  const [focusActionType, setFocusActionType] = useState<FocusSpendType | null>(null);
+  const [pendingDueDate, setPendingDueDate] = useState<string | undefined>(undefined);
+
   const originallyUndated = task.dueDate === null;
-  const overdue = isOverdueForDelete(task, dueDate, originallyUndated);
+  const taskIsOverdue = task.dueDate ? isOverdue(task.dueDate) : false;
   const mutationPending = update.isPending || remove.isPending;
 
   useEffect(() => {
@@ -81,12 +87,16 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
       setSelectedSkills(state.selectedSkills);
       setDueDate(state.dueDate);
       setDeleteDialogOpen(false);
+      setFocusPromptOpen(false);
+      setFocusActionType(null);
+      setPendingDueDate(undefined);
     }
   }, [open, task]);
 
   const handleSheetOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       setDeleteDialogOpen(false);
+      setFocusPromptOpen(false);
     }
     onOpenChange(nextOpen);
   };
@@ -106,8 +116,56 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
     });
   };
 
+  const nonDateFieldsDirty = () => {
+    const sameSkills =
+      selectedSkills.length === task.skillCodes.length &&
+      [...selectedSkills].sort().join(',') === [...task.skillCodes].sort().join(',');
+    return title.trim() !== task.title || difficulty !== task.difficulty || !sameSkills;
+  };
+
   const handleSubmit = async () => {
-    if (mutationPending) {
+    if (mutationPending) return;
+
+    const formDueDateValue = dueDate ? dueDate : originallyUndated ? undefined : null;
+    const formDueDate = dueDate || null;
+
+    // Clearing the due date on an overdue quest is not a supported action:
+    // overdue quests must be rescheduled to a new date (matches tasks.update guard).
+    if (task.dueDate && isOverdue(task.dueDate) && formDueDate === null) {
+      toast.error('Pick a new date to reschedule this overdue quest.');
+      return;
+    }
+
+    // Check if this save requires a Focus spend
+    const spendType = detectFocusSpendType(task, dueDate);
+    if (spendType) {
+      // Persist any title/difficulty/skill edits first so they aren't lost when
+      // the save routes through focus.spend (which only mutates the due date).
+      if (nonDateFieldsDirty()) {
+        const editParsed = TaskUpdateSchema.safeParse({
+          id: task.id,
+          title,
+          difficulty,
+          skillCodes: selectedSkills,
+          dueDate: task.dueDate ?? undefined, // unchanged date — avoids the Focus guards
+        });
+
+        if (!editParsed.success) {
+          toast.error('Could not save quest. Check the fields and try again.');
+          return;
+        }
+
+        try {
+          await update.mutateAsync(editParsed.data);
+        } catch {
+          toast.error('Could not save quest. Check your connection and try again.');
+          return;
+        }
+      }
+
+      setFocusActionType(spendType);
+      setPendingDueDate(dueDate || undefined);
+      setFocusPromptOpen(true);
       return;
     }
 
@@ -116,7 +174,7 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
       title,
       difficulty,
       skillCodes: selectedSkills,
-      dueDate: dueDate ? dueDate : originallyUndated ? undefined : null,
+      dueDate: formDueDateValue,
     });
 
     if (!parsed.success) {
@@ -135,9 +193,7 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
   };
 
   const handleDelete = async () => {
-    if (mutationPending) {
-      return;
-    }
+    if (mutationPending) return;
 
     try {
       await remove.mutateAsync({ id: task.id });
@@ -149,6 +205,43 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
       toast.error('Could not delete quest. Check your connection and try again.');
     }
   };
+
+  const handleDeleteClick = () => {
+    if (taskIsOverdue) {
+      setFocusActionType('delete_overdue');
+      setPendingDueDate(undefined);
+      setFocusPromptOpen(true);
+    } else {
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const handleFocusSpendSuccess = () => {
+    setFocusPromptOpen(false);
+    setFocusActionType(null);
+    setPendingDueDate(undefined);
+    handleSheetOpenChange(false);
+
+    if (focusActionType === 'reschedule_overdue') {
+      toast.success('Quest rescheduled');
+    } else if (focusActionType === 'add_due_date') {
+      toast.success('Quest scheduled');
+    } else if (focusActionType === 'delete_overdue') {
+      toast.success('Quest removed');
+    }
+
+    router.refresh();
+  };
+
+  const handleFocusSpendCancel = () => {
+    setFocusPromptOpen(false);
+    setFocusActionType(null);
+    setPendingDueDate(undefined);
+  };
+
+  const dueDateHelperText = originallyUndated
+    ? 'Spend 1 Focus to schedule this quest.'
+    : 'Scheduled quests keep full XP through the due date.';
 
   return (
     <>
@@ -167,32 +260,22 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
             onToggleSkill={toggleSkill}
             dueDate={dueDate}
             onDueDateChange={setDueDate}
-            dueDateDisabled={originallyUndated}
-            dueDateHelperText={
-              originallyUndated
-                ? 'Adding a due date costs 1 Focus — coming soon.'
-                : 'Scheduled quests keep full XP through the due date.'
-            }
+            dueDateDisabled={false}
+            dueDateHelperText={dueDateHelperText}
             autoFocusTitle={open}
             fieldIdSuffix={`edit-${task.id}`}
           />
 
           <SheetFooter className="flex-col gap-3 sm:flex-col">
-            {!overdue ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-[44px] w-full text-destructive hover:text-destructive"
-                disabled={mutationPending}
-                onClick={() => setDeleteDialogOpen(true)}
-              >
-                Delete Quest
-              </Button>
-            ) : (
-              <p className="text-center text-sm text-muted-foreground">
-                Overdue quests require Focus to delete.
-              </p>
-            )}
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-[44px] w-full text-destructive hover:text-destructive"
+              disabled={mutationPending}
+              onClick={handleDeleteClick}
+            >
+              {taskIsOverdue ? 'Delete Quest (1 Focus)' : 'Delete Quest'}
+            </Button>
             <Button
               type="button"
               className="min-h-[44px] w-full"
@@ -205,6 +288,7 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
         </SheetContent>
       </Sheet>
 
+      {/* Standard delete confirmation for non-overdue quests */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -233,6 +317,18 @@ export function EditQuestSheet({ task, open, onOpenChange }: EditQuestSheetProps
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Focus spend prompt for gated actions */}
+      {focusActionType && (
+        <FocusSpendPrompt
+          open={focusPromptOpen}
+          actionType={focusActionType}
+          taskId={task.id}
+          newDueDate={pendingDueDate}
+          onSuccess={handleFocusSpendSuccess}
+          onCancel={handleFocusSpendCancel}
+        />
+      )}
     </>
   );
 }

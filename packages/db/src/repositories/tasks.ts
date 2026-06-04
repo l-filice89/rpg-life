@@ -168,7 +168,7 @@ export async function updateTaskForOwner(
   if (existing.dueDate === null && dueDate !== null) {
     throw new TaskMutationError(
       'BAD_REQUEST',
-      'Adding a due date requires Focus — coming in a future update.',
+      'Adding a due date to an undated quest requires Focus. Use the schedule action.',
     );
   }
 
@@ -179,7 +179,7 @@ export async function updateTaskForOwner(
   ) {
     throw new TaskMutationError(
       'BAD_REQUEST',
-      'Rescheduling or clearing an overdue due date requires Focus — coming in a future update.',
+      'Rescheduling an overdue quest requires Focus. Use the reschedule action.',
     );
   }
 
@@ -226,7 +226,7 @@ export async function softDeleteTaskForOwner(
   if (existing.dueDate && isOverdueUtc(existing.dueDate)) {
     throw new TaskMutationError(
       'BAD_REQUEST',
-      'Overdue quests require Focus to delete.',
+      'Deleting an overdue quest requires Focus. Use the delete with Focus action.',
     );
   }
 

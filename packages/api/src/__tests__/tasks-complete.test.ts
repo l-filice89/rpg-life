@@ -387,4 +387,29 @@ describe('tasks.complete', () => {
     const reward = await caller.tasks.complete({ taskId: created.id, timezone });
     expect(reward.focusEarned).toBe(1);
   });
+
+  test('easy quest earns no focus', async () => {
+    const userId = crypto.randomUUID();
+    await seedUser(testDb, userId);
+    const caller = createCaller(testDb, {
+      id: userId,
+      email: `ben-${userId}@example.com`,
+      name: 'Ben',
+    });
+
+    const created = await caller.tasks.create({
+      title: 'Easy quest',
+      difficulty: 'easy',
+      skillCodes: ['craft'],
+    });
+
+    const reward = await caller.tasks.complete({ taskId: created.id, timezone });
+    expect(reward.focusEarned).toBe(0);
+
+    const progressRows = await testDb
+      .select()
+      .from(userProgress)
+      .where(eq(userProgress.userId, userId));
+    expect(progressRows).toHaveLength(0);
+  });
 });

@@ -18,3 +18,9 @@ export {
   type CompleteTaskInput,
   type RewardPayload,
 } from './complete';
+export {
+  FocusSpendSchema,
+  FocusSpendTypeSchema,
+  type FocusSpendInput,
+  type FocusSpendType,
+} from './focus';
