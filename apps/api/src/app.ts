@@ -38,7 +38,10 @@ app.use(
 app.post('/api/auth/test-session', testSessionHandler);
 app.post('/api/auth/test-seed', testSeedHandler);
 
-app.on(['POST', 'GET'], '/api/auth/**', (c) => auth.handler(c.req.raw));
+// NOTE: single `*` wildcard — Hono's router fails to match a `**` wildcard once
+// exact routes (the test-session/test-seed POSTs above) share the same prefix,
+// which silently 404s every better-auth route (incl. get-session and sign-in).
+app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
 
 app.get('/health', (c) =>
   c.json({

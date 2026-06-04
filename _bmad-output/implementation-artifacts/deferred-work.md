@@ -96,3 +96,11 @@
 
 - AC4 minimum spec count (≥5) not enforced — Playwright has no native "minimum passing specs" gate; enforcing requires JSON output parsing and a post-run script; spirit of AC4 met via fail-on-any-failure behavior.
 - `bunfig.toml` `[test.coverage]` include/exclude section absent — blocked by bun 1.3.14 bug (TOML sub-table `[test.coverage]` treated as object not bool); workaround uses explicit CLI source-dir args; revisit when bun fixes oven-sh/bun#17028.
+
+## Deferred from: code review (hotfix — Hono `**` wildcard fix) (2026-06-04)
+
+- **Only `GET` and `POST` proxied to better-auth** — `app.on(['POST', 'GET'], '/api/auth/*', ...)` silently drops `DELETE`, `PUT`, `PATCH` verbs; pre-existing before this diff. Revisit if better-auth gains verb-diverse plugin routes. [`apps/api/src/app.ts:44`]
+- **`c.req.raw` passthrough makes Hono middleware invisible to better-auth** — header normalizations or body mutations applied upstream are not reflected in the Request received by `auth.handler`; pre-existing architectural pattern. [`apps/api/src/app.ts:44`]
+- **Test-only routes always mounted in production** — `test-session` and `test-seed` are registered unconditionally; production is guarded only inside each handler (403 if `NODE_ENV !== 'test'`). Pre-existing. [`apps/api/src/app.ts:38–39`]
+- **CI E2E never validates auth routing under `NODE_ENV=production`** — `docker-compose.ci.yml` overrides API to `NODE_ENV=test`; a regression to `**` would not fail the Docker-based E2E because the session fixture uses the exact `test-session` POST route, not the wildcard. Pre-existing CI gap. [`.github/workflows/ci.yml`, `docker-compose.ci.yml`]
+- **No automated regression test for the wildcard routing fix** — re-introduction of `**` alongside exact routes would silently break all better-auth routes again with no test failure. [`apps/api/src/app.ts`]
