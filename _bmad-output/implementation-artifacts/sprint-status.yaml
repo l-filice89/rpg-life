@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-29
-last_updated: 2026-06-04 # story 3.6 done after code review
+last_updated: 2026-06-04 # epic 3 retrospective completed
 project: rpg-life
 project_key: NOKEY
 tracking_system: file-system
@@ -65,7 +65,7 @@ development_status:
   3-4-my-profile-stats-page: done
   3-5-focus-earn-and-spend-actions: done
   3-6-board-clear-celebratory-empty-state: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: done
   epic-4: backlog
   4-1-playwright-e2e-test-suite: backlog
   4-2-ci-pipeline-with-coverage-gate: backlog
