@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { RewardPayload } from '@rpg-life/api';
 import { Checkbox } from '@rpg-life/ui';
@@ -8,6 +8,7 @@ import { trpc } from '@/components/providers/app-providers';
 import { ConfirmCompleteModal } from '@/components/modals/ConfirmCompleteModal';
 import { HeroLevelUpOverlay } from '@/components/modals/HeroLevelUpOverlay';
 import { RewardModal } from '@/components/modals/RewardModal';
+import { useQuestBoardComplete } from './quest-board-complete-context';
 
 type QuestRowActionsProps = {
   taskId: string;
@@ -24,6 +25,8 @@ export function QuestRowActions({
 }: QuestRowActionsProps) {
   const router = useRouter();
   const utils = trpc.useUtils();
+  const { requestBoardClear } = useQuestBoardComplete();
+  const wasLastOpenQuestRef = useRef(false);
   const complete = trpc.tasks.complete.useMutation({
     onError: () => {
       // Confirm modal stays open for retry; completing resets when user dismisses confirm
@@ -42,16 +45,25 @@ export function QuestRowActions({
   const showStandardReward = rewardOpen && rewardPayload != null && !rewardPayload.leveledUp;
 
   const finishRewardFlow = () => {
+    const wasLastOpenQuest = wasLastOpenQuestRef.current;
+    if (wasLastOpenQuest) {
+      requestBoardClear();
+    }
+    wasLastOpenQuestRef.current = false;
     setRewardOpen(false);
     setRewardPayload(null);
     setHeroXpProgress(0);
     setCompletedTaskId(null);
     onCompletingChange?.(false);
-    router.refresh();
+    if (!wasLastOpenQuest) {
+      router.refresh();
+    }
   };
 
   const handleCompleteSuccess = async (payload: RewardPayload) => {
-    void utils.tasks.list.invalidate();
+    await utils.tasks.list.invalidate();
+    const remainingTaskCount = utils.tasks.list.getData()?.length;
+    wasLastOpenQuestRef.current = remainingTaskCount === 0;
     await utils.profile.get.invalidate();
     const profile = await utils.profile.get.fetch();
     setHeroXpProgress(profile.heroXpProgress);
@@ -122,7 +134,6 @@ export function QuestRowActions({
         />
       ) : null}
 
-      {/* taskId retained for Story 3.6 board-clear detection */}
       <span className="sr-only" data-completed-task-id={completedTaskId ?? undefined} />
     </>
   );

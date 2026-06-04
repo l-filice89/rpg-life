@@ -1,8 +1,9 @@
 import type { ProfileSummary, TaskListItem } from '@rpg-life/api';
-import { QuestBoardEmptyFirst } from './QuestBoardEmptyFirst';
+import { resolveServerEmptyVariant } from '@/lib/quest-board-empty-variant';
+import { CreateQuestSheetProvider } from './create-quest-sheet-context';
+import { QuestBoardContent } from './QuestBoardContent';
 import { QuestBoardFab } from './QuestBoardFab';
 import { QuestBoardHeader } from './QuestBoardHeader';
-import { QuestBoardTaskList } from './QuestBoardTaskList';
 
 type QuestBoardProps = {
   tasks: TaskListItem[];
@@ -10,15 +11,19 @@ type QuestBoardProps = {
 };
 
 export function QuestBoard({ tasks, profile }: QuestBoardProps) {
+  const serverEmptyVariant = resolveServerEmptyVariant(tasks.length, profile);
+
   return (
-    <div className="py-6">
-      <QuestBoardHeader profile={profile} />
-      {tasks.length === 0 ? (
-        <QuestBoardEmptyFirst />
-      ) : (
-        <QuestBoardTaskList tasks={tasks} />
-      )}
-      <QuestBoardFab />
-    </div>
+    <CreateQuestSheetProvider>
+      <div className="py-6">
+        <QuestBoardHeader profile={profile} />
+        <QuestBoardContent
+          tasks={tasks}
+          profile={profile}
+          serverEmptyVariant={serverEmptyVariant}
+        />
+        <QuestBoardFab />
+      </div>
+    </CreateQuestSheetProvider>
   );
 }

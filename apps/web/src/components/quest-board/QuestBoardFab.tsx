@@ -1,16 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { CreateQuestSheet } from '@/components/create-quest-sheet/CreateQuestSheet';
 import { FabCreateQuest } from './FabCreateQuest';
+import { useCreateQuestSheet } from './create-quest-sheet-context';
 
 export function QuestBoardFab() {
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const { openCreateQuestSheet } = useCreateQuestSheet();
 
-  return (
-    <>
-      <FabCreateQuest onClick={() => setSheetOpen(true)} />
-      <CreateQuestSheet open={sheetOpen} onOpenChange={setSheetOpen} />
-    </>
-  );
+  return <FabCreateQuest onClick={openCreateQuestSheet} />;
 }
