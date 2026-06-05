@@ -19,84 +19,18 @@ bun run test:e2e     # Run Playwright E2E tests
 bun run test:e2e:ui  # Playwright interactive UI
 ```
 
-## Docker Compose Workflow
-
-### Prerequisites
-
-- Docker Desktop (macOS/Windows) or Docker Engine + Docker Compose plugin (Linux)
-- A configured root `.env` file (copy from `.env.example`)
-- Run these Docker commands from the monorepo root (`rpg-life/`)
-
-### Environment setup
-
-```bash
-cp .env.example .env
-# Required updates:
-# - BETTER_AUTH_SECRET (32+ characters)
-# - RESEND_API_KEY
-# - EMAIL_FROM
-```
-
-### Start services
-
-```bash
-docker compose up --build
-```
-
-- Web: `http://localhost:3000`
-- API: `http://localhost:3002`
-- SQLite data: `./data/rpg-life.db` (persisted via `./data:/data`)
-
-### Smoke verification
-
-```bash
-bash scripts/smoke-docker.sh
-```
-
-Manual checks:
-
-```bash
-curl http://localhost:3002/health
-curl http://localhost:3000
-curl http://localhost:3000/api/trpc/health
-```
-
-### Stop services
-
-```bash
-docker compose down     # stop containers, keep database in ./data
-rm -f ./data/rpg-life.db  # optional: wipe persisted sqlite data
-```
+For Docker Compose setup and smoke verification, see the [root README](../../README.md).
 
 ## Structure
 
 ```
 src/
-  app/
-    layout.tsx              # Root layout (html, font, globals)
-    page.tsx                # Redirect / → /quest-board
-    (auth)/
-      layout.tsx            # Auth gate layout (star motif)
-      sign-in/page.tsx      # Magic link sign-in + post-send state
-    (app)/
-      layout.tsx            # AppProviders + AppShell; RSC fetches tutorial.getStatus
-      quest-board/page.tsx  # Quest Board placeholder (Epic 2)
-      profile/page.tsx      # My Profile placeholder (Epic 3)
-  components/
-    auth/sign-in-form.tsx   # Client island for Auth B flow
-    sidebar/
-      app-shell.tsx         # Shell layout + sidebar + tutorial state
-      app-header.tsx        # Hamburger + page title
-      sidebar-overlay.tsx   # Left Sheet nav overlay
-    tutorial/
-      tutorial-sheet.tsx    # Bottom Sheet first-run + replay explainer
-      tutorial-content.ts   # Shared five-topic copy
-    providers/app-providers.tsx  # tRPC + QueryClient (used in (app)/layout)
-  lib/
-    page-title.ts           # Route → header title helper
-    trpc-server.ts          # RSC tRPC caller
-    env.ts                  # Validated env
-  middleware.ts             # Session gate → /sign-in (must be under src/ when using src/app)
+  app/           File-based routes (App Router, RSC-first)
+    (auth)/      Auth gate layout + sign-in page
+    (app)/       Authenticated shell: Quest Board, My Profile
+  components/    React components (auth, sidebar, tutorial, providers)
+  lib/           Pure utilities and server-side helpers
+  middleware.ts  Session gate — redirects unauthenticated users to /sign-in
 ```
 
 ## Auth Flow
@@ -120,6 +54,8 @@ src/
 Playwright tests in `e2e/`:
 
 - `auth.spec.ts` — redirect to sign-in, protected routes, email validation copy
-- Full magic-link inbox flow → Epic 4
+- `accessibility.spec.ts` — axe-core audits for critical pages and flows
 
 Run with `bun run test:e2e`. Config in `playwright.config.ts`.
+
+First-time setup: `bunx playwright install --with-deps`

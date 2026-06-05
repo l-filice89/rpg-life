@@ -15,7 +15,7 @@ Thanks for your interest in contributing to rpg-life.
 bun install
 cp .env.example .env.local   # set BETTER_AUTH_SECRET + Resend keys
 bun db:migrate
-bun db:seed                  # optional; api also seeds skills on startup
+bun db:seed                  # optional — the API seeds the skills catalog automatically on startup
 bun dev
 ```
 
