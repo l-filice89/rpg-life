@@ -37,7 +37,7 @@ test.describe('Quest Complete + Reward — UJ-2', () => {
     await page.getByRole('button', { name: 'Yes' }).click();
 
     // Reward modal (or level-up overlay) should appear within 2 s
-    await expect(page.getByText('Quest complete!')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Quest complete!' })).toBeVisible({ timeout: 5000 });
 
     // At least one skill XP entry should be visible
     await expect(page.getByText(/\+\d+ XP/)).toBeVisible();
@@ -76,7 +76,7 @@ test.describe('Quest Complete + Reward — UJ-2', () => {
     await page.getByRole('button', { name: 'Yes' }).click();
 
     // Wait for reward / level-up
-    await expect(page.getByText('Quest complete!')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Quest complete!' })).toBeVisible({ timeout: 5000 });
     await page.getByRole('button', { name: 'Continue' }).click();
 
     // Board-clear empty state

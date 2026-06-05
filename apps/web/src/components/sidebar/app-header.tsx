@@ -1,14 +1,16 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import type { RefObject } from 'react';
 import { getPageTitle } from '@/lib/page-title';
 
 type AppHeaderProps = {
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
+  menuButtonRef?: RefObject<HTMLButtonElement | null>;
 };
 
-export function AppHeader({ sidebarOpen, onToggleSidebar }: AppHeaderProps) {
+export function AppHeader({ sidebarOpen, onToggleSidebar, menuButtonRef }: AppHeaderProps) {
   const pathname = usePathname();
   const title = getPageTitle(pathname);
 
@@ -16,6 +18,7 @@ export function AppHeader({ sidebarOpen, onToggleSidebar }: AppHeaderProps) {
     <header className="border-b border-border bg-gradient-to-b from-card to-background px-5 py-5">
       <div className="flex w-full items-center gap-4">
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={onToggleSidebar}
           aria-expanded={sidebarOpen}

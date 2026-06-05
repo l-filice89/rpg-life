@@ -22,6 +22,10 @@ out/
 # Coverage
 coverage/
 
+# Playwright (root-level, in case tests are accidentally run from repo root)
+test-results/
+playwright-report/
+
 # IDE
 .vscode/
 !.vscode/settings.json

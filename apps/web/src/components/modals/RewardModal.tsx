@@ -7,17 +7,16 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
   Sheet,
   SheetContent,
   SheetFooter,
-  SheetHeader,
   SheetTitle,
   SkillChip,
   XpBar,
 } from '@rpg-life/ui';
-import { trpc } from '@/components/providers/app-providers';
+import { useId } from 'react';
+import type * as React from 'react';
 import { useIsDesktop } from '@/hooks/use-is-desktop';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { skillDisplayName } from '@/lib/skill-display-name';
@@ -36,10 +35,12 @@ function formatXpAnnouncement(payload: RewardPayload): string {
     .map(([code, xp]) => `${skillDisplayName(code as SkillCode)} plus ${xp} XP`)
     .join(', ');
 
-  const focusPart =
-    payload.focusEarned > 0 ? ` Focus earned: ${payload.focusEarned}.` : '';
+  const parts: string[] = ['Quest complete!'];
+  if (skillParts) parts.push(`${skillParts}.`);
+  if (payload.focusEarned > 0) parts.push(`Focus earned: ${payload.focusEarned}.`);
+  parts.push(`Hero level ${payload.heroLevelAfter}.`);
 
-  return `Quest complete! ${skillParts}.${focusPart} Hero level ${payload.heroLevelAfter}.`;
+  return parts.join(' ');
 }
 
 function RewardContent({
@@ -47,11 +48,13 @@ function RewardContent({
   heroXpProgress,
   reducedMotion,
   onContinue,
+  TitleSlot,
 }: {
   payload: RewardPayload;
   heroXpProgress: number;
   reducedMotion: boolean;
   onContinue: () => void;
+  TitleSlot: React.ComponentType<{ children: React.ReactNode; asChild?: boolean; className?: string }>;
 }) {
   const skillEntries = Object.entries(payload.xpPerSkill).filter(
     ([, xp]) => xp > 0,
@@ -65,7 +68,9 @@ function RewardContent({
 
       <div className="flex flex-col gap-6">
         <div className="text-center">
-          <h2 className="text-display-sm text-foreground">Quest complete!</h2>
+          <TitleSlot asChild className="text-display-sm text-foreground">
+            <h2>Quest complete!</h2>
+          </TitleSlot>
           <p className="mt-1 text-sm text-muted-foreground">
             Nice work — your Hero and Skills gained XP.
           </p>
@@ -136,6 +141,7 @@ export function RewardModal({
   heroXpProgress,
   onContinue,
 }: RewardModalProps) {
+  const descriptionId = useId();
   const isDesktop = useIsDesktop();
   const reducedMotion = useReducedMotion();
 
@@ -143,24 +149,24 @@ export function RewardModal({
     return null;
   }
 
-  const content = (
-    <RewardContent
-      payload={payload}
-      heroXpProgress={heroXpProgress}
-      reducedMotion={reducedMotion}
-      onContinue={onContinue}
-    />
-  );
-
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent showCloseButton={false} className="max-w-md">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Quest complete!</DialogTitle>
-            <DialogDescription>{formatXpAnnouncement(payload)}</DialogDescription>
-          </DialogHeader>
-          {content}
+        <DialogContent
+          showCloseButton={false}
+          className="max-w-md"
+          aria-describedby={descriptionId}
+        >
+          <DialogDescription id={descriptionId} className="sr-only">
+            {formatXpAnnouncement(payload)}
+          </DialogDescription>
+          <RewardContent
+            payload={payload}
+            heroXpProgress={heroXpProgress}
+            reducedMotion={reducedMotion}
+            onContinue={onContinue}
+            TitleSlot={DialogTitle}
+          />
         </DialogContent>
       </Dialog>
     );
@@ -169,10 +175,13 @@ export function RewardModal({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="flex max-h-[90vh] flex-col overflow-y-auto">
-        <SheetHeader className="sr-only">
-          <SheetTitle>Quest complete!</SheetTitle>
-        </SheetHeader>
-        {content}
+        <RewardContent
+          payload={payload}
+          heroXpProgress={heroXpProgress}
+          reducedMotion={reducedMotion}
+          onContinue={onContinue}
+          TitleSlot={SheetTitle}
+        />
         <SheetFooter className="sr-only" />
       </SheetContent>
     </Sheet>

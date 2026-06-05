@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { RefObject } from 'react';
 import { cn, Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from '@rpg-life/ui';
 
 const NAV_LINKS = [
@@ -21,9 +22,15 @@ type SidebarOverlayProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onTutorialClick?: () => void;
+  restoreFocusRef?: RefObject<HTMLButtonElement | null>;
 };
 
-export function SidebarOverlay({ open, onOpenChange, onTutorialClick }: SidebarOverlayProps) {
+export function SidebarOverlay({
+  open,
+  onOpenChange,
+  onTutorialClick,
+  restoreFocusRef,
+}: SidebarOverlayProps) {
   const pathname = usePathname();
 
   const handleTutorialClick = () => {
@@ -33,7 +40,17 @@ export function SidebarOverlay({ open, onOpenChange, onTutorialClick }: SidebarO
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" id="main-navigation" className="w-[min(100%,20rem)] bg-card">
+      <SheetContent
+        side="left"
+        id="main-navigation"
+        className="w-[min(100%,20rem)] bg-card"
+        onCloseAutoFocus={(event) => {
+          if (restoreFocusRef?.current) {
+            event.preventDefault();
+            restoreFocusRef.current.focus();
+          }
+        }}
+      >
         <SheetHeader>
           <SheetTitle>Navigation</SheetTitle>
         </SheetHeader>

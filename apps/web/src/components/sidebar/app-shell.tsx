@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { QuestBoardFilterProvider } from '@/components/quest-board/quest-board-filter-context';
 import { TutorialSheet } from '@/components/tutorial/tutorial-sheet';
 import { AppHeader } from './app-header';
@@ -17,6 +17,7 @@ export function AppShell({ children, initialTutorialSeen }: AppShellProps) {
   const [tutorialMode, setTutorialMode] = useState<'first-run' | 'replay'>(
     initialTutorialSeen ? 'replay' : 'first-run',
   );
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleTutorialClick = () => {
     setTutorialMode('replay');
@@ -28,11 +29,13 @@ export function AppShell({ children, initialTutorialSeen }: AppShellProps) {
       <AppHeader
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((open) => !open)}
+        menuButtonRef={menuButtonRef}
       />
       <SidebarOverlay
         open={sidebarOpen}
         onOpenChange={setSidebarOpen}
         onTutorialClick={handleTutorialClick}
+        restoreFocusRef={menuButtonRef}
       />
       <TutorialSheet
         open={tutorialOpen}

@@ -82,7 +82,7 @@ authTest.describe('Accessibility audit — authenticated', () => {
 
     // Task 6: Reward modal a11y check (continues from confirm)
     await page.getByRole('button', { name: 'Yes' }).click();
-    await expect(page.getByText('Quest complete!')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Quest complete!' })).toBeVisible({ timeout: 5000 });
     // Wait for animations to settle before auditing
     await page.waitForTimeout(300);
     await checkA11y(page, 'reward modal');
