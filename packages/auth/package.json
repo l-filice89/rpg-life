@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@rpg-life/db": "workspace:*",
-    "better-auth": "1.2.8",
+    "better-auth": "1.6.14",
     "resend": "4.0.0"
   },
   "devDependencies": {
